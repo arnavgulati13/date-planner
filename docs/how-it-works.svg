@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 910" width="1200" height="910" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F6B7A"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B98900"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="910" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="70" y="46" font-size="26" font-weight="700" fill="#1F2328">How it works</text>
+  <text x="70" y="74" font-size="15" fill="#57606A">One loop per date night. The couple profile in the middle is the “model”: the LLM reads it to recommend, and rewrites it after every date.</text>
+
+  <!-- Legend -->
+  <g font-size="13" fill="#57606A">
+    <rect x="700" y="98" width="14" height="14" rx="3" fill="#FFF1EC" stroke="#F0703C"/>
+    <text x="720" y="110">Couple taps</text>
+    <rect x="812" y="98" width="14" height="14" rx="3" fill="#F1F3F5" stroke="#868E96"/>
+    <text x="832" y="110">Plain code</text>
+    <rect x="920" y="98" width="14" height="14" rx="3" fill="#EFEBFF" stroke="#7C5CFF"/>
+    <text x="940" y="110">LLM call</text>
+    <rect x="1022" y="98" width="14" height="14" rx="3" fill="#FFF8E1" stroke="#E0A800"/>
+    <text x="1042" y="110">Memory</text>
+  </g>
+
+  <!-- ============ ROW 1 ============ -->
+  <!-- A1 Plan a date -->
+  <rect x="70" y="130" width="300" height="120" rx="12" fill="#FFF1EC" stroke="#F0703C" stroke-width="1.5"/>
+  <rect x="86" y="146" width="72" height="20" rx="10" fill="#F0703C"/>
+  <text x="122" y="160" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">COUPLE</text>
+  <text x="86" y="192" font-size="18" font-weight="700" fill="#1F2328">1 · Plan a date</text>
+  <text x="86" y="214" font-size="13" fill="#3D444D">When · area · budget · vibe · occasion</text>
+  <text x="86" y="234" font-size="13" fill="#3D444D">+ an “anything else?” box</text>
+
+  <!-- B1 Constraint filter -->
+  <rect x="450" y="130" width="300" height="120" rx="12" fill="#F1F3F5" stroke="#868E96" stroke-width="1.5"/>
+  <rect x="466" y="146" width="46" height="20" rx="10" fill="#7C5CFF"/>
+  <text x="489" y="160" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">LLM</text>
+  <rect x="518" y="146" width="56" height="20" rx="10" fill="#868E96"/>
+  <text x="546" y="160" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">CODE</text>
+  <text x="466" y="192" font-size="18" font-weight="700" fill="#1F2328">2 · Find candidates</text>
+  <text x="466" y="214" font-size="13" fill="#3D444D">LLM writes searches → Google Places</text>
+  <text x="466" y="234" font-size="13" fill="#3D444D">Code filters: open then · price · diet</text>
+
+  <!-- C1 Recommend -->
+  <rect x="830" y="130" width="300" height="120" rx="12" fill="#EFEBFF" stroke="#7C5CFF" stroke-width="1.5"/>
+  <rect x="846" y="146" width="46" height="20" rx="10" fill="#7C5CFF"/>
+  <text x="869" y="160" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">LLM</text>
+  <text x="846" y="192" font-size="18" font-weight="700" fill="#1F2328">3 · Recommend</text>
+  <text x="846" y="214" font-size="13" fill="#3D444D">3 cards: 2 best fits + 1 wildcard</text>
+  <text x="846" y="234" font-size="13" fill="#3D444D">Each says “why this fits you two”</text>
+
+  <!-- Row 1 arrows -->
+  <line x1="370" y1="190" x2="448" y2="190" stroke="#5F6B7A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="409" y="181" font-size="12" fill="#57606A" text-anchor="middle">request</text>
+  <line x1="750" y1="190" x2="828" y2="190" stroke="#5F6B7A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="789" y="181" font-size="12" fill="#57606A" text-anchor="middle">~20 venues</text>
+
+  <!-- Recommend -> Pick & book -->
+  <line x1="1060" y1="250" x2="1060" y2="628" stroke="#5F6B7A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1072" y="444" font-size="12" fill="#57606A">3 options</text>
+
+  <!-- ============ MEMORY ============ -->
+  <rect x="300" y="340" width="600" height="200" rx="14" fill="#FFF8E1" stroke="#E0A800" stroke-width="2"/>
+  <text x="324" y="372" font-size="16" font-weight="700" fill="#8A6500">🧠 &#160;COUPLE PROFILE  ·  the memory</text>
+  <g font-size="13.5" fill="#3D444D">
+    <text x="324" y="400"><tspan font-weight="700" fill="#1F2328">Shared loves:</tspan> dim, intimate rooms, small plates</text>
+    <text x="324" y="422"><tspan font-weight="700" fill="#1F2328">Where they differ:</tspan> Maya loves spice · Sam is mostly vegetarian</text>
+    <text x="324" y="444"><tspan font-weight="700" fill="#1F2328">Avoid (2+ signals):</tspan> loud, sports-bar energy</text>
+    <text x="324" y="466"><tspan font-weight="700" fill="#1F2328">To explore → searches + wildcard:</tspan> Korean, live music, Pilsen</text>
+  </g>
+  <line x1="324" y1="484" x2="876" y2="484" stroke="#E0A800" stroke-width="1" stroke-dasharray="4 4"/>
+  <text x="324" y="507" font-size="13" fill="#57606A"><tspan font-weight="700" fill="#8A6500">📒 &#160;Event log</tspan> — every swipe, pick, rejection and rating is saved</text>
+  <text x="324" y="527" font-size="13" fill="#57606A">→ this becomes the training data for a real ML model later</text>
+
+  <!-- Memory read / write arrows -->
+  <line x1="870" y1="252" x2="870" y2="338" stroke="#B98900" stroke-width="2" stroke-dasharray="6 4" marker-start="url(#arrowGold)"/>
+  <text x="882" y="300" font-size="12" font-weight="600" fill="#8A6500">reads</text>
+  <line x1="600" y1="252" x2="600" y2="338" stroke="#B98900" stroke-width="2" stroke-dasharray="6 4" marker-start="url(#arrowGold)"/>
+  <text x="612" y="300" font-size="12" font-weight="600" fill="#8A6500">reads</text>
+  <line x1="320" y1="628" x2="320" y2="542" stroke="#B98900" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrowGold)"/>
+  <text x="332" y="592" font-size="12" font-weight="600" fill="#8A6500">rewrites</text>
+
+  <!-- ============ ROW 2 ============ -->
+  <!-- C2 Pick & book -->
+  <rect x="830" y="630" width="300" height="120" rx="12" fill="#FFF1EC" stroke="#F0703C" stroke-width="1.5"/>
+  <rect x="846" y="646" width="72" height="20" rx="10" fill="#F0703C"/>
+  <text x="882" y="660" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">COUPLE</text>
+  <text x="846" y="692" font-size="18" font-weight="700" fill="#1F2328">4 · Pick &amp; book</text>
+  <text x="846" y="714" font-size="13" fill="#3D444D">Pick one, or “Not it” + a reason chip</text>
+  <text x="846" y="734" font-size="13" fill="#3D444D">→ Google Maps / booking link + calendar</text>
+
+  <!-- B2 Check-in -->
+  <rect x="450" y="630" width="300" height="120" rx="12" fill="#FFF1EC" stroke="#F0703C" stroke-width="1.5"/>
+  <rect x="466" y="646" width="72" height="20" rx="10" fill="#F0703C"/>
+  <text x="502" y="660" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">COUPLE</text>
+  <text x="466" y="692" font-size="18" font-weight="700" fill="#1F2328">5 · Post-date check-in</text>
+  <text x="466" y="714" font-size="13" fill="#3D444D">Each partner: “Would you go back?”</text>
+  <text x="466" y="734" font-size="13" fill="#3D444D">+ optional note · takes 5 seconds</text>
+
+  <!-- A2 Update memory -->
+  <rect x="70" y="630" width="300" height="120" rx="12" fill="#EFEBFF" stroke="#7C5CFF" stroke-width="1.5"/>
+  <rect x="86" y="646" width="46" height="20" rx="10" fill="#7C5CFF"/>
+  <text x="109" y="660" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">LLM</text>
+  <text x="86" y="692" font-size="18" font-weight="700" fill="#1F2328">6 · Update memory</text>
+  <text x="86" y="714" font-size="13" fill="#3D444D">Rewrites profile + “what we learned”</text>
+  <text x="86" y="734" font-size="13" fill="#3D444D">Same step builds the first profile</text>
+
+  <!-- Row 2 arrows (right to left) -->
+  <line x1="830" y1="690" x2="752" y2="690" stroke="#5F6B7A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="790" y="681" font-size="12" fill="#57606A" text-anchor="middle">🍷 the date</text>
+  <line x1="450" y1="690" x2="372" y2="690" stroke="#5F6B7A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="411" y="681" font-size="12" fill="#57606A" text-anchor="middle">ratings</text>
+
+  <!-- Update -> next Plan -->
+  <line x1="130" y1="630" x2="130" y2="252" stroke="#5F6B7A" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round" marker-end="url(#arrow)"/>
+  <text x="144" y="436" font-size="12" fill="#57606A">next date</text>
+  <text x="144" y="452" font-size="12" fill="#57606A">night ↻</text>
+
+  <!-- ============ ONBOARDING ============ -->
+  <line x1="220" y1="818" x2="220" y2="752" stroke="#5F6B7A" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="70" y="820" width="680" height="64" rx="12" fill="#FFFFFF" stroke="#F0703C" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <rect x="86" y="842" width="118" height="20" rx="10" fill="#F0703C"/>
+  <text x="145" y="856" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">FIRST TIME ONLY</text>
+  <text x="218" y="857" font-size="14" fill="#1F2328"><tspan font-weight="700">Onboarding:</tspan> each partner fills a taste form and ♥ / ✕ 15 well-known Chicago spots</text>
+</svg>

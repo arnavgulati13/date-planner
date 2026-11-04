@@ -1,0 +1,6 @@
+streamlit>=1.50
+anthropic>=2.4
+pydantic>=2
+requests
+python-dotenv
+pytest

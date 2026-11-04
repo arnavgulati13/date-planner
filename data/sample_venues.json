@@ -1,0 +1,3143 @@
+[
+ {
+  "place_id": "sample-lula-cafe",
+  "name": "Lula Cafe",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "New American restaurant",
+  "types": [],
+  "summary": "Seasonal, farm-driven neighborhood spot with an artsy, relaxed room.",
+  "tags": [
+   "cozy",
+   "farm-to-table",
+   "seasonal",
+   "neighborhood"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 22,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Lula+Cafe+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-longman---eagle",
+  "name": "Longman & Eagle",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Gastropub",
+  "types": [],
+  "summary": "Buzzy whiskey-forward tavern with elevated pub food.",
+  "tags": [
+   "lively",
+   "whiskey",
+   "gastropub",
+   "bar"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 0,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Longman+%26+Eagle+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-giant",
+  "name": "Giant",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.8,
+  "rating_count": null,
+  "type": "American restaurant",
+  "types": [],
+  "summary": "Tiny, playful room serving inventive shareable plates.",
+  "tags": [
+   "intimate",
+   "small plates",
+   "tiny room",
+   "inventive"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Giant+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-billy-sunday",
+  "name": "Billy Sunday",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Cocktail bar",
+  "types": [],
+  "summary": "Moody cocktail bar with amaro list and snacks.",
+  "tags": [
+   "intimate",
+   "cocktails",
+   "dim",
+   "small plates"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 2,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Billy+Sunday+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-mi-tocaya-antojeria",
+  "name": "Mi Tocaya Antojeria",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Mexican restaurant",
+  "types": [],
+  "summary": "Bright, playful regional Mexican cooking.",
+  "tags": [
+   "lively",
+   "mexican",
+   "colorful",
+   "spicy"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Mi+Tocaya+Antojeria+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-daisies",
+  "name": "Daisies",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Italian restaurant",
+  "types": [],
+  "summary": "Handmade pasta built around Midwest produce.",
+  "tags": [
+   "cozy",
+   "pasta",
+   "vegetable-forward",
+   "seasonal"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Daisies+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-osteria-langhe",
+  "name": "Osteria Langhe",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Italian restaurant",
+  "types": [],
+  "summary": "Candlelit Piedmontese trattoria with a deep wine list.",
+  "tags": [
+   "romantic",
+   "piedmontese",
+   "wine",
+   "candlelit"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Osteria+Langhe+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-the-corner-tap--sample",
+  "name": "The Corner Tap (sample)",
+  "neighborhood": "Logan Square",
+  "address": "Logan Square, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 1,
+  "rating": 3.9,
+  "rating_count": null,
+  "type": "Sports bar",
+  "types": [],
+  "summary": "Sports bar with lots of TVs.",
+  "tags": [
+   "loud",
+   "sports",
+   "tvs",
+   "beer"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 0,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=The+Corner+Tap+(sample)+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-kumiko",
+  "name": "Kumiko",
+  "neighborhood": "West Loop",
+  "address": "West Loop, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "Cocktail bar",
+  "types": [],
+  "summary": "Japanese-inspired cocktail bar with a calm, dim room.",
+  "tags": [
+   "intimate",
+   "dim",
+   "japanese",
+   "cocktails",
+   "omakase"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 2,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Kumiko+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-avec",
+  "name": "Avec",
+  "neighborhood": "West Loop",
+  "address": "West Loop, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Mediterranean restaurant",
+  "types": [],
+  "summary": "Cedar-lined room of shared Mediterranean small plates.",
+  "tags": [
+   "lively",
+   "small plates",
+   "communal",
+   "wine"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Avec+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-girl---the-goat",
+  "name": "Girl & the Goat",
+  "neighborhood": "West Loop",
+  "address": "West Loop, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "New American restaurant",
+  "types": [],
+  "summary": "High-energy room with bold shareable plates.",
+  "tags": [
+   "lively",
+   "loud",
+   "small plates",
+   "long waits"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Girl+%26+the+Goat+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-au-cheval",
+  "name": "Au Cheval",
+  "neighborhood": "West Loop",
+  "address": "West Loop, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Diner",
+  "types": [],
+  "summary": "Legendary burger spot; expect a wait.",
+  "tags": [
+   "loud",
+   "burgers",
+   "long waits",
+   "casual"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 0,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": false,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Au+Cheval+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-elske",
+  "name": "Elske",
+  "neighborhood": "West Loop",
+  "address": "West Loop, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 4,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "Scandinavian restaurant",
+  "types": [],
+  "summary": "Nordic tasting menu with an outdoor fire pit.",
+  "tags": [
+   "special occasion",
+   "tasting menu",
+   "intimate",
+   "fireplace"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Elske+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-proxi",
+  "name": "Proxi",
+  "neighborhood": "West Loop",
+  "address": "West Loop, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Asian fusion restaurant",
+  "types": [],
+  "summary": "Global street-food flavors in a sleek space.",
+  "tags": [
+   "lively",
+   "global",
+   "spicy",
+   "sleek"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Proxi+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-monteverde",
+  "name": "Monteverde",
+  "neighborhood": "West Loop",
+  "address": "West Loop, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "Italian restaurant",
+  "types": [],
+  "summary": "Pasta-focused restaurant with a pastificio counter.",
+  "tags": [
+   "lively",
+   "pasta",
+   "buzzy",
+   "hard to book"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Monteverde+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-the-violet-hour",
+  "name": "The Violet Hour",
+  "neighborhood": "Wicker Park",
+  "address": "Wicker Park, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Cocktail bar",
+  "types": [],
+  "summary": "Hidden-door speakeasy with high-backed chairs.",
+  "tags": [
+   "speakeasy",
+   "dim",
+   "intimate",
+   "cocktails"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 2,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=The+Violet+Hour+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-big-star",
+  "name": "Big Star",
+  "neighborhood": "Wicker Park",
+  "address": "Wicker Park, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 1,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Taco restaurant",
+  "types": [],
+  "summary": "Honky-tonk taqueria with a big patio.",
+  "tags": [
+   "loud",
+   "tacos",
+   "patio",
+   "casual"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 0,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Big+Star+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-etta",
+  "name": "Etta",
+  "neighborhood": "Wicker Park",
+  "address": "Wicker Park, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Italian restaurant",
+  "types": [],
+  "summary": "Wood-fired cooking in a warm, rustic room.",
+  "tags": [
+   "cozy",
+   "wood-fired",
+   "pizza",
+   "warm"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Etta+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-mott-st",
+  "name": "Mott St",
+  "neighborhood": "Wicker Park",
+  "address": "Wicker Park, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Asian restaurant",
+  "types": [],
+  "summary": "Playful Asian-American plates, great for sharing.",
+  "tags": [
+   "lively",
+   "korean",
+   "spicy",
+   "shareable"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Mott+St+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-s-k-y",
+  "name": "S.K.Y.",
+  "neighborhood": "Pilsen",
+  "address": "Pilsen, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "New American restaurant",
+  "types": [],
+  "summary": "Refined, globally inflected New American menu.",
+  "tags": [
+   "intimate",
+   "tasting",
+   "korean",
+   "refined"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=S.K.Y.+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-dusek-s-board---beer",
+  "name": "Dusek's Board & Beer",
+  "neighborhood": "Pilsen",
+  "address": "Pilsen, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Gastropub",
+  "types": [],
+  "summary": "Gastropub inside historic Thalia Hall.",
+  "tags": [
+   "lively",
+   "beer",
+   "historic",
+   "live music"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 0,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Dusek's+Board+%26+Beer+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-thalia-hall",
+  "name": "Thalia Hall",
+  "neighborhood": "Pilsen",
+  "address": "Pilsen, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "Live music venue",
+  "types": [],
+  "summary": "Restored 1892 opera hall hosting concerts.",
+  "tags": [
+   "live music",
+   "concert",
+   "historic",
+   "lively"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 2,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": false,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Thalia+Hall+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-5-rabanitos",
+  "name": "5 Rabanitos",
+  "neighborhood": "Pilsen",
+  "address": "Pilsen, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 1,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "Mexican restaurant",
+  "types": [],
+  "summary": "Family-run Mexican spot with standout tortas.",
+  "tags": [
+   "casual",
+   "mexican",
+   "family-run",
+   "spicy"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 22,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 9,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 22,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=5+Rabanitos+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-bavette-s-bar---boeuf",
+  "name": "Bavette's Bar & Boeuf",
+  "neighborhood": "River North",
+  "address": "River North, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 4,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "Steak house",
+  "types": [],
+  "summary": "Dim, jazz-soundtracked steakhouse.",
+  "tags": [
+   "special occasion",
+   "dim",
+   "jazz",
+   "steakhouse",
+   "romantic"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": false,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Bavette's+Bar+%26+Boeuf+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-frontera-grill",
+  "name": "Frontera Grill",
+  "neighborhood": "River North",
+  "address": "River North, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Mexican restaurant",
+  "types": [],
+  "summary": "Rick Bayless's flagship regional Mexican restaurant.",
+  "tags": [
+   "lively",
+   "mexican",
+   "classic",
+   "margaritas"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Frontera+Grill+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-rpm-italian",
+  "name": "RPM Italian",
+  "neighborhood": "River North",
+  "address": "River North, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Italian restaurant",
+  "types": [],
+  "summary": "Glossy, see-and-be-seen Italian.",
+  "tags": [
+   "scene",
+   "sleek",
+   "pasta",
+   "lively"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=RPM+Italian+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-green-mill-cocktail-lounge",
+  "name": "Green Mill Cocktail Lounge",
+  "neighborhood": "Uptown",
+  "address": "Uptown, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.7,
+  "rating_count": null,
+  "type": "Jazz club",
+  "types": [],
+  "summary": "Historic jazz lounge with nightly live music.",
+  "tags": [
+   "live music",
+   "jazz",
+   "dim",
+   "historic",
+   "cocktails"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 2,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 16,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 2,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Green+Mill+Cocktail+Lounge+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-hopleaf",
+  "name": "Hopleaf",
+  "neighborhood": "Andersonville",
+  "address": "Andersonville, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 2,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Belgian bar",
+  "types": [],
+  "summary": "Belgian beer bar with mussels and frites.",
+  "tags": [
+   "cozy",
+   "beer",
+   "mussels",
+   "neighborhood"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 0,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Hopleaf+Chicago",
+  "website": null,
+  "seed": true
+ },
+ {
+  "place_id": "sample-parachute",
+  "name": "Parachute",
+  "neighborhood": "Avondale",
+  "address": "Avondale, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 3,
+  "rating": 4.6,
+  "rating_count": null,
+  "type": "Korean restaurant",
+  "types": [],
+  "summary": "Inventive Korean-American cooking in a small room.",
+  "tags": [
+   "intimate",
+   "korean",
+   "inventive",
+   "small room"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 23,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 17,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 23,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Parachute+Chicago",
+  "website": null,
+  "seed": false
+ },
+ {
+  "place_id": "sample-kimski",
+  "name": "Kimski",
+  "neighborhood": "Bridgeport",
+  "address": "Bridgeport, Chicago",
+  "lat": null,
+  "lng": null,
+  "price_level": 1,
+  "rating": 4.5,
+  "rating_count": null,
+  "type": "Korean restaurant",
+  "types": [],
+  "summary": "Korean-Polish counter spot next to a beer hall.",
+  "tags": [
+   "casual",
+   "korean",
+   "polish",
+   "counter service"
+  ],
+  "hours": [
+   {
+    "open": {
+     "day": 0,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 1,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 1,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 2,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 2,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 3,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 3,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 4,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 4,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 5,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 5,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 6,
+     "hour": 0,
+     "minute": 0
+    }
+   },
+   {
+    "open": {
+     "day": 6,
+     "hour": 11,
+     "minute": 0
+    },
+    "close": {
+     "day": 0,
+     "hour": 0,
+     "minute": 0
+    }
+   }
+  ],
+  "serves_vegetarian": true,
+  "reservable": true,
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Kimski+Chicago",
+  "website": null,
+  "seed": false
+ }
+]
