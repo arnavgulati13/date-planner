@@ -294,12 +294,12 @@ def results():
             if p["heads_up"]:
                 st.caption(f"⚠️ {p['heads_up']}")
             b1, b2 = st.columns(2)
-            if b1.button("Pick this", key=f"pick{p['place_id']}", type="primary", use_container_width=True):
+            if b1.button("Pick this", key=f"pick{p['place_id']}", type="primary", width="stretch"):
                 store.log("picked", session_id=res["session_id"], place_id=v["place_id"], name=v["name"], kind=p["kind"])
                 S.selected = {**p, "venue": v}
                 S.stage = "booked"
                 st.rerun()
-            with b2.popover("Not it", use_container_width=True):
+            with b2.popover("Not it", width="stretch"):
                 reason = st.pills("Why?", REJECT_REASONS, key=f"why{p['place_id']}")
                 if reason:
                     store.log("rejected", session_id=res["session_id"], place_id=v["place_id"], name=v["name"],
@@ -335,11 +335,11 @@ def booked():
         st.write("**1. Reserve a table**")
         c1, c2, c3 = st.columns(3)
         if v.get("maps_url"):
-            c1.link_button("Open in Google Maps (Reserve a table)", v["maps_url"], use_container_width=True)
+            c1.link_button("Open in Google Maps (Reserve a table)", v["maps_url"], width="stretch")
         if v.get("website"):
-            c2.link_button("Venue website", v["website"], use_container_width=True)
+            c2.link_button("Venue website", v["website"], width="stretch")
         c3.download_button("Add to calendar (.ics)", ics(v["name"], v.get("address", ""), req.when),
-                           file_name="date-night.ics", mime="text/calendar", use_container_width=True)
+                           file_name="date-night.ics", mime="text/calendar", width="stretch")
         if v.get("reservable") is False:
             st.caption("⚠️ Google lists this place as not taking reservations. Plan to walk in.")
         st.write("**2. Tell us once it's booked**")
@@ -383,7 +383,7 @@ def profile_page():
         evs = store.events()
         st.dataframe([{"when": e["ts"], "type": e["type"], "venue": e.get("name", ""),
                        "detail": e.get("reason") or e.get("kind") or e.get("note") or ""} for e in reversed(evs)],
-                     use_container_width=True, hide_index=True)
+                     width="stretch", hide_index=True)
     if st.button("Rebuild profile from the event log"):
         with st.spinner("Rebuilding from scratch…"):
             result, err = llm.update_profile("", store.events())
