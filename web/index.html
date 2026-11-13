@@ -36,7 +36,7 @@
 
   <script src="simulated_responses.js"></script>
   <script>
-    // Page chrome: step bar + couple label. All product logic is in app.js.
+    // Page chrome: the step bar. The couple label and all product logic are in app.js.
     const STEP_OF = { onboarding: 0, plan: 1, loading: 2, results: 2, confirm: 3, booking: 3, booked: 3, mismatch: 3, review: 4, thanks: 4 };
     window.onScreenChange = screen => {
       document.getElementById("screen").dataset.screen = screen;
@@ -45,8 +45,6 @@
         el.className = i === idx ? "on" : i < idx ? "done" : "");
       window.scrollTo(0, 0);
     };
-    const c = window.SIMULATED_RESPONSES.couple;
-    document.getElementById("couple").innerHTML = `Signed in as <b class="a">${c.a}</b> &amp; <b class="b">${c.b}</b>`;
   </script>
   <script src="app.js"></script>
 </body>

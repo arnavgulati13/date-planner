@@ -405,6 +405,8 @@ function planReady() {
 }
 
 function render() {
+  const who = document.getElementById("couple");   // "Signed in as" always shows the current couple
+  if (who) who.innerHTML = `Signed in as <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b>`;
   screenEl.innerHTML = screens[state.screen]();
   screenEl.scrollTop = 0;
   if (window.onScreenChange) window.onScreenChange(state.screen);   // updates the step bar in index.html
