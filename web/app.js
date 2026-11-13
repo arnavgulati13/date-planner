@@ -101,9 +101,17 @@ async function api(path, body) {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(`${path} failed (${res.status})`);
   const data = await res.json();
-  for (const c of data.ai_calls || []) {         // show each real AI call in the on-screen log
-    log(`ai_call · ${c.step}`, { model: c.model, effort: c.effort, latency_ms: c.latency_ms,
-      tokens: c.usage, error: c.error, output: c.output }, c.error ? "alert" : "ai", false);
+  for (const c of data.ai_calls || []) {         // show each AI call and agent step in the on-screen log
+    if (c.kind === "agent_step") {
+      const r = c.returned;
+      const brief = c.tool === "google_places_search" && r ? { ...r, venues: r.venues.map(v => v.name) } : r;
+      log(`step · ${c.tool}`, { sent: c.sent, returned: brief, error: c.error }, c.error ? "alert" : "ai", false);
+    } else {
+      log(`ai_call · ${c.step}`, { model: c.model, effort: c.effort, latency_ms: c.latency_ms, tokens: c.usage,
+        confidence: c.confidence, error: c.error, output: c.output,
+        instructions: c.instructions ? `${c.prompt_file} (${c.instructions.length} chars, full text in logs/ai_log.jsonl)` : undefined },
+        c.error ? "alert" : "ai", false);
+    }
   }
   return data;
 }

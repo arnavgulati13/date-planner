@@ -55,6 +55,7 @@ Start the app (`.venv/bin/python server.py`, then open http://localhost:8000). T
 
 - **Old praise and new complaints sit side by side.** In two runs out of two, case 4's lively pick was Avec, which the demo couple had loved on an earlier date. After Sam's "too loud", the profile kept Avec under **Shared loves** (the earlier date) and added it as evidence under **Avoid** (the new one). That's defensible, but it reads like a contradiction, and the next ranking has to resolve it.
 - **The runner caught its own bug first.** Google's name for the venue ("avec Restaurant") didn't match the profile's ("Avec"), so the first version of a case 4 check failed even though the AI was right. Checks now match on the date. Reading a FAIL before blaming the model is part of testing.
+- **Results vary from run to run.** On a later run of case 1, one Best fit (Port Union) was justified only by Sam's taste and its rating, with no shared history, so "Every Best fit cites the couple's history" failed. In the same run the Wildcard's reason called it "4.7-rated" when the venue data says 4.6, a small invented detail. Run each case more than once before judging a model.
 - **The Wildcard's % is low (35%) next to the Best fits (65–70%).** That's honest, but it may stop couples choosing it.
 - **Picks take about 17 seconds**, mostly the ranking step. Compare models and `effort` settings on it.
 - **The "% you'd both go back" is the model's estimate**, not a measured probability. It stands in for the return model from Assignment 3.

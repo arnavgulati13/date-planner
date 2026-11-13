@@ -56,7 +56,10 @@ Changes apply on the next request; there's no need to restart the server.
 
 ## Where to look while testing
 
-- **`logs/ai_log.jsonl`:** one line per AI request (the exact input sent, the output returned, the model, response time, tokens, any error) and one line per click in the app. Open it in any text editor. The same entries show in the app's right-hand log.
+- **`logs/ai_log.jsonl`:** open it in any text editor. The same entries show in the app's right-hand log. It has three kinds of line:
+  - `ai_call`: every Claude request, with the instructions (system prompt) and input values sent, the output returned, the confidence scores ("% you'd both go back"), the model, response time, tokens and any error.
+  - `agent_step`: every other step of the picks pipeline. That's each Google Places search (what was sent, what came back), the hard-rule filter (what was kept and dropped, and why) and the final picks.
+  - `ui_event`: every click in the app (ratings, picks, Generate more, booking decisions, review answers).
 - **`data/profile.md`:** what the app currently believes about the couple.
 - **`data/events.jsonl`:** every rating, pick, booking and check-in, which is the training data a future model would learn from.
 
