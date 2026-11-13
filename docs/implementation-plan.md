@@ -1,6 +1,6 @@
 # Date Planner — MVP Implementation Plan
 
-*Group 22 · BUSN 43120 · Draft by Arnav, for team review*
+*Group 22 · BUSN 43120*
 
 The goal is the smallest prototype that makes the core idea feel real in a demo: **the app knows you as a couple, picks a date you'd both like, and gets smarter after every date.** Everything else is cut.
 
@@ -12,7 +12,7 @@ The goal is the smallest prototype that makes the core idea feel real in a demo:
 | Geography | **Set for each date, not at onboarding.** The couple says where they want to go this time, and we search live for venues there. |
 | Front end | **Streamlit** |
 | LLM | **Claude** |
-| Demo couple | **Made-up names**, with tastes loosely based on Arnav's real context |
+| Demo couple | **Made-up names and tastes** |
 
 ---
 
