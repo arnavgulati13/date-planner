@@ -6,3 +6,4 @@ data/profile.md
 data/events.jsonl
 data/places_cache/
 .DS_Store
+logs/
