@@ -1,8 +1,11 @@
 """The testing log: logs/ai_log.jsonl.
 
-One line per AI request (the input sent, the output returned, the model, timing,
-any error) and one line per click the web app reports (picks, Generate more,
-booking decisions, review answers). Open the file in any text editor during
+Three kinds of line:
+  ai_call     every Claude request: the instructions (system prompt) and input values sent,
+              the output returned, confidence scores (return_chance), model, timing, tokens, errors
+  agent_step  every other step of the picks pipeline: each Google Places search (what was sent,
+              what came back), the hard-rule filter (what was kept and dropped), the final picks
+  ui_event    every click the web app reports (ratings, picks, Generate more, booking decisions, reviews) Open the file in any text editor during
 testing. This is separate from data/events.jsonl, which is the couple's memory.
 """
 from __future__ import annotations
@@ -32,6 +35,6 @@ def write(kind: str, **fields) -> dict:
     LOG.parent.mkdir(exist_ok=True)
     with LOG.open("a") as f:
         f.write(json.dumps(entry, default=str) + "\n")
-    if kind == "ai_call" and _captured.get() is not None:
+    if kind in ("ai_call", "agent_step") and _captured.get() is not None:
         _captured.get().append(entry)
     return entry

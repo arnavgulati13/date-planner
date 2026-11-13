@@ -45,7 +45,10 @@ def _call(prompt_file: str, user: str, schema: type[BaseModel], step: str) -> Ba
     """The one place the app calls Claude. Every call is written to logs/ai_log.jsonl."""
     global _client
     if not available():
-        raise LLMUnavailable("No Anthropic API key set, or use_real_ai is off in config.json")
+        error = "No Anthropic API key set, or use_real_ai is off in config.json"
+        ailog.write("ai_call", step=step, model=None, prompt_file=prompt_file, input=user, output=None,
+                    error=error + " (the fallback heuristic answered instead)")
+        raise LLMUnavailable(error)
     _client = _client or anthropic.Anthropic()
     cfg = config.load()
     name, effort = cfg["model"], cfg["effort"][step]
@@ -71,11 +74,18 @@ def _call(prompt_file: str, user: str, schema: type[BaseModel], step: str) -> Ba
     except anthropic.APIStatusError as e:
         error = f"Claude API error {e.status_code}: {e.message}"
     finally:
+        parsed = resp.parsed_output if resp is not None else None
         ailog.write(
             "ai_call", step=step, model=name, effort=effort,
             latency_ms=round(1000 * (time.monotonic() - started)),
-            input=user,
-            output=resp.parsed_output.model_dump() if resp is not None and resp.parsed_output is not None else None,
+            prompt_file=prompt_file,
+            instructions=request["system"],      # the full system prompt the model was given
+            input=user,                          # the input values: profile, request, candidates
+            output=parsed.model_dump() if parsed is not None else None,
+            # confidence scores pulled out of the output, so they're easy to scan
+            confidence=[{"place_id": p.place_id, "kind": p.kind, "return_chance": p.return_chance}
+                        for p in parsed.picks] if parsed is not None and hasattr(parsed, "picks") else None,
+            stop_reason=resp.stop_reason if resp is not None else None,
             usage={"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens} if resp is not None else None,
             error=error,
         )

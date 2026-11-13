@@ -14,6 +14,7 @@ from pathlib import Path
 
 import requests
 
+import ailog
 import config
 
 URL = "https://places.googleapis.com/v1/places:searchText"
@@ -72,24 +73,42 @@ def _sample_search(query: str) -> list[dict]:
 
 
 def search(query: str, price_levels: range | None = None) -> list[dict]:
+    """One tool step of the agent: run a search the model wrote. Logged to logs/ai_log.jsonl."""
+    sent = {"query": query, "price_levels": list(price_levels or [])}
     key = hashlib.sha1(f"{live()}|{query}|{list(price_levels or [])}".encode()).hexdigest()[:16]
     cached = CACHE / f"{key}.json"
     if cached.exists():
-        return json.loads(cached.read_text())
+        venues = json.loads(cached.read_text())
+        _log(sent, venues, "cache")
+        return venues
 
     if live():
         body = {"textQuery": query, "pageSize": 10}
         if price_levels:
             body["priceLevels"] = [PRICE_ENUM[p] for p in price_levels if p in PRICE_ENUM]
-        resp = requests.post(URL, json=body, timeout=20, headers={
-            "X-Goog-Api-Key": os.environ["GOOGLE_MAPS_API_KEY"],
-            "X-Goog-FieldMask": FIELDS,
-        })
-        resp.raise_for_status()
+        try:
+            resp = requests.post(URL, json=body, timeout=20, headers={
+                "X-Goog-Api-Key": os.environ["GOOGLE_MAPS_API_KEY"],
+                "X-Goog-FieldMask": FIELDS,
+            })
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            ailog.write("agent_step", tool="google_places_search", sent=sent, returned=None, error=str(e))
+            raise
         venues = [_normalize(p) for p in resp.json().get("places", [])]
+        source = "google_places_live"
     else:
         venues = _sample_search(query)
+        source = "sample_venues"
 
     CACHE.mkdir(parents=True, exist_ok=True)
     cached.write_text(json.dumps(venues))
+    _log(sent, venues, source)
     return venues
+
+
+def _log(sent: dict, venues: list[dict], source: str) -> None:
+    ailog.write("agent_step", tool="google_places_search", sent=sent, returned={
+        "source": source, "count": len(venues),
+        "venues": [{"name": v["name"], "price_level": v.get("price_level"), "rating": v.get("rating")} for v in venues],
+    }, error=None)

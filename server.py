@@ -121,8 +121,15 @@ def recommend():
     if len(kept) < 6:
         widened = True
         extra = places.search(f"restaurant {req.area} Chicago", prices) + places.search(f"bar {req.area} Chicago", prices)
-        kept, dropped = constraint_filter.apply(found + extra, req, visited)
+        found = found + extra
+        kept, dropped = constraint_filter.apply(found, req, visited)
     candidates = [v for v in kept if v["place_id"] not in exclude]
+    ailog.write("agent_step", tool="constraint_filter", sent={
+        "venues_in": len(found), "rules": {"when": req.when.isoformat(), "budget": [req.price_min, req.price_max],
+                                           "vegetarian": req.vegetarian, "min_rating": constraint_filter.MIN_RATING,
+                                           "exclude_recently_visited": len(visited), "exclude_already_shown": len(exclude)}},
+        returned={"kept": len(kept), "dropped_by_reason": dropped, "widened_search": widened,
+                  "sent_to_ranking": min(len(candidates), 25)}, error=None)
 
     picks, err = llm.recommend(profile, req, candidates[:25]) if candidates else ([], None)
     if err:
@@ -142,6 +149,9 @@ def recommend():
             "kind": p.kind, "headline": p.headline, "why": p.why, "heads_up": p.heads_up,
             "return_chance": p.return_chance,
         })
+    ailog.write("agent_step", tool="final_picks", sent={"session_id": session_id}, returned=[
+        {"name": o["name"], "kind": o["kind"], "return_chance": o["return_chance"], "heads_up": o["heads_up"]} for o in out],
+        error=err)
     return reply(session_id=session_id, queries=queries, found=len(found), kept=len(kept),
                  dropped=dropped, widened=widened, notes=notes, picks=out,
                  source="claude" if not err and llm.available() else "fallback",
