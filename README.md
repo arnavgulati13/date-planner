@@ -41,6 +41,8 @@ Then open **http://localhost:8000** in your browser. The badge in the top bar sa
 - **Demo couple:** in Test mode (top of the right-hand column), pick **Demo couple with 5 past dates**. It loads Maya & Sam with a history, so the picks can cite past dates.
 - **Failure scenarios:** the other Test mode options start at the relevant step on sample data, with a "What to do" hint.
 
+**Test cases:** [TEST_CASES.md](TEST_CASES.md) has the 5 Lab 8 cases. Run cases 1–4 automatically with `.venv/bin/python -m scripts.run_test_cases`.
+
 ## Settings: `config.json`
 
 | Setting | What it does |

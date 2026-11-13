@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 PATH = Path(__file__).parent / "config.json"
@@ -23,4 +24,7 @@ DEFAULTS = {
 def load() -> dict:
     """Re-read on every call, so edits to config.json apply without restarting the server."""
     cfg = json.loads(PATH.read_text()) if PATH.exists() else {}
-    return {**DEFAULTS, **cfg, "effort": {**DEFAULTS["effort"], **cfg.get("effort", {})}}
+    merged = {**DEFAULTS, **cfg, "effort": {**DEFAULTS["effort"], **cfg.get("effort", {})}}
+    if os.getenv("DATE_NIGHT_MODEL"):        # the test runner's --model flag
+        merged["model"] = os.environ["DATE_NIGHT_MODEL"]
+    return merged

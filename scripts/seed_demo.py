@@ -75,7 +75,7 @@ PROFILE = f"""## Shared loves
 
 def seed() -> None:
     store.reset()
-    venues = {v["name"]: v for v in json.loads((store.DATA / "sample_venues.json").read_text())}
+    venues = {v["name"]: v for v in json.loads((Path(__file__).parent.parent / "data" / "sample_venues.json").read_text())}
     store.save_couple(COUPLE)
 
     onboard_ts = (datetime.now() - timedelta(days=80)).isoformat(timespec="seconds")

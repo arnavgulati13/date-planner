@@ -15,11 +15,11 @@ from pathlib import Path
 import requests
 
 import config
-from store import DATA
 
 URL = "https://places.googleapis.com/v1/places:searchText"
-CACHE = DATA / "places_cache"
-SAMPLE = DATA / "sample_venues.json"
+REPO_DATA = Path(__file__).parent / "data"          # shared by tests and real use, whatever DATE_NIGHT_DATA says
+CACHE = REPO_DATA / "places_cache"
+SAMPLE = REPO_DATA / "sample_venues.json"
 FIELDS = ",".join(f"places.{f}" for f in [
     "id", "displayName", "formattedAddress", "shortFormattedAddress", "location",
     "rating", "userRatingCount", "priceLevel", "types", "primaryTypeDisplayName",

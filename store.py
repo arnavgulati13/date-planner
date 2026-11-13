@@ -7,11 +7,13 @@ events.jsonl  append-only log of every swipe, pick, rejection and rating
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 
-DATA = Path(__file__).parent / "data"
+# The couple's files. The test runner points DATE_NIGHT_DATA at a scratch folder so tests never touch real data.
+DATA = Path(os.getenv("DATE_NIGHT_DATA") or Path(__file__).parent / "data")
 COUPLE = DATA / "couple.json"
 PROFILE = DATA / "profile.md"
 EVENTS = DATA / "events.jsonl"
