@@ -1,4 +1,4 @@
-streamlit>=1.50
+flask>=3.1
 anthropic>=2.4
 pydantic>=2
 requests

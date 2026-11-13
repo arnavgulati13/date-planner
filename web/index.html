@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Date Night</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Date <span>Night</span></div>
+    <nav class="steps" id="steps">
+      <div>1 · Onboarding</div><div>2 · Plan</div><div>3 · Pick</div><div>4 · Book</div><div>5 · Review</div>
+    </nav>
+    <div class="mode" id="mode"></div>
+    <div class="couple" id="couple"></div>
+  </header>
+
+  <div class="web-layout">
+    <main class="web-main">
+      <div class="screen" id="screen"></div>
+    </main>
+    <aside class="log" aria-label="Captured data log">
+      <h2>Captured data log</h2>
+      <p class="note">What the system would store. Stands in for a database; resets on reload.</p>
+      <div class="test-mode" id="test-mode"></div>
+      <div class="metrics">
+        <div class="metric"><b id="m-selected">0</b><span>Selected</span></div>
+        <div class="metric"><b id="m-booked">0</b><span>Booked</span></div>
+        <div class="metric"><b id="m-fail">0</b><span>Book fails</span></div>
+        <div class="metric"><b id="m-return">–</b><span>Return</span></div>
+      </div>
+      <div id="log-list"></div>
+    </aside>
+  </div>
+
+  <script src="simulated_responses.js"></script>
+  <script>
+    // Page chrome: the step bar. The couple label and all product logic are in app.js.
+    const STEP_OF = { onboarding: 0, plan: 1, loading: 2, results: 2, confirm: 3, booking: 3, booked: 3, mismatch: 3, review: 4, thanks: 4 };
+    window.onScreenChange = screen => {
+      document.getElementById("screen").dataset.screen = screen;
+      const idx = STEP_OF[screen];
+      [...document.getElementById("steps").children].forEach((el, i) =>
+        el.className = i === idx ? "on" : i < idx ? "done" : "");
+      window.scrollTo(0, 0);
+    };
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

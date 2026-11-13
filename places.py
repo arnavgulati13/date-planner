@@ -14,6 +14,7 @@ from pathlib import Path
 
 import requests
 
+import config
 from store import DATA
 
 URL = "https://places.googleapis.com/v1/places:searchText"
@@ -31,7 +32,7 @@ PRICE_ENUM = {v: k for k, v in PRICE.items()}
 
 
 def live() -> bool:
-    return bool(os.getenv("GOOGLE_MAPS_API_KEY"))
+    return bool(os.getenv("GOOGLE_MAPS_API_KEY")) and config.load()["use_live_places"]
 
 
 def _normalize(p: dict) -> dict:

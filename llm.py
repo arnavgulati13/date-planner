@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
@@ -16,10 +17,13 @@ from typing import Literal
 import anthropic
 from pydantic import BaseModel, Field
 
+import ailog
+import config
 import store
 
-MODEL = os.getenv("CLAUDE_MODEL", "claude-opus-5-5")
 PROMPTS = Path(__file__).parent / "prompts"
+# Models that accept the server-side refusal fallback. Haiku has none.
+FALLBACK_MODELS = {"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"}
 
 _client: anthropic.Anthropic | None = None
 
@@ -28,33 +32,55 @@ class LLMUnavailable(Exception):
     pass
 
 
+def model() -> str:
+    return config.load()["model"]
+
+
 def available() -> bool:
-    return bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
+    has_key = bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
+    return has_key and config.load()["use_real_ai"]
 
 
-def _call(prompt_file: str, user: str, schema: type[BaseModel], effort: str) -> BaseModel:
+def _call(prompt_file: str, user: str, schema: type[BaseModel], step: str) -> BaseModel:
+    """The one place the app calls Claude. Every call is written to logs/ai_log.jsonl."""
     global _client
     if not available():
-        raise LLMUnavailable("No Anthropic API key set")
+        raise LLMUnavailable("No Anthropic API key set, or use_real_ai is off in config.json")
     _client = _client or anthropic.Anthropic()
+    cfg = config.load()
+    name, effort = cfg["model"], cfg["effort"][step]
+    request = dict(
+        model=name,
+        max_tokens=16000,
+        system=(PROMPTS / prompt_file).read_text(),
+        messages=[{"role": "user", "content": user}],
+        output_format=schema,
+        output_config={"effort": effort},
+    )
+    started, resp, error = time.monotonic(), None, None
     try:
-        resp = _client.beta.messages.parse(
-            model=MODEL,
-            max_tokens=16000,
-            system=(PROMPTS / prompt_file).read_text(),
-            messages=[{"role": "user", "content": user}],
-            output_format=schema,
-            output_config={"effort": effort},
+        if name in FALLBACK_MODELS:
             # if a safety classifier declines, the API retries on a fallback model
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-        )
+            resp = _client.beta.messages.parse(**request, betas=["server-side-fallback-2026-07-01"], fallbacks="default")
+        else:
+            resp = _client.messages.parse(**request)
+        if resp.stop_reason == "refusal" or resp.parsed_output is None:
+            error = f"Claude returned no usable answer (stop reason: {resp.stop_reason})"
     except anthropic.APIConnectionError as e:
-        raise LLMUnavailable(f"Couldn't reach the Claude API: {e}") from e
+        error = f"Couldn't reach the Claude API: {e}"
     except anthropic.APIStatusError as e:
-        raise LLMUnavailable(f"Claude API error {e.status_code}: {e.message}") from e
-    if resp.stop_reason == "refusal" or resp.parsed_output is None:
-        raise LLMUnavailable(f"Claude returned no usable answer (stop reason: {resp.stop_reason})")
+        error = f"Claude API error {e.status_code}: {e.message}"
+    finally:
+        ailog.write(
+            "ai_call", step=step, model=name, effort=effort,
+            latency_ms=round(1000 * (time.monotonic() - started)),
+            input=user,
+            output=resp.parsed_output.model_dump() if resp is not None and resp.parsed_output is not None else None,
+            usage={"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens} if resp is not None else None,
+            error=error,
+        )
+    if error:
+        raise LLMUnavailable(error)
     return resp.parsed_output
 
 
@@ -125,7 +151,7 @@ class Queries(BaseModel):
 def write_queries(profile: str, req: store.DateRequest) -> tuple[Queries, str | None]:
     user = f"<profile>\n{profile or '(empty)'}\n</profile>\n\n<request>\n{req.describe()}\n</request>"
     try:
-        return _call("write_queries.md", user, Queries, effort="low"), None
+        return _call("write_queries.md", user, Queries, step="write_queries"), None
     except LLMUnavailable as e:
         vibe = " ".join(req.vibes[:2]) or "date night"
         explore = re.findall(r"- ([^\[\n,]+)", _section(profile, "To explore"))
@@ -143,6 +169,8 @@ class Pick(BaseModel):
     headline: str
     why: str
     heads_up: str
+    # Stand-in for the return-probability model in Assignment 3: an LLM estimate, not a calibrated probability.
+    return_chance: int | None = Field(default=None, description="0-100 estimate that both partners would want to return")
 
 
 class Recs(BaseModel):
@@ -154,14 +182,15 @@ def recommend(profile: str, req: store.DateRequest, candidates: list[dict]) -> t
             f"<request>\n{req.describe()}\n</request>\n\n<candidates>\n{_candidates_text(candidates)}\n</candidates>")
     error = None
     try:
-        picks = _call("recommend.md", user, Recs, effort="medium").picks
+        picks = _call("recommend.md", user, Recs, step="recommend").picks
         ids = {f"c{i}": v["place_id"] for i, v in enumerate(candidates, 1)}
         seen, valid = set(), []
         for p in picks:                      # never trust ids blindly
             real = ids.get(p.place_id.strip())
             if real and real not in seen:
                 seen.add(real)
-                valid.append(p.model_copy(update={"place_id": real}))
+                chance = None if p.return_chance is None else max(0, min(100, p.return_chance))
+                valid.append(p.model_copy(update={"place_id": real, "return_chance": chance}))
         if valid:
             return valid[:3], None
         error = "Claude's picks didn't match any candidate"
@@ -205,13 +234,14 @@ class ProfileUpdate(BaseModel):
     learned: list[str]
 
 
-def update_profile(profile: str, new_events: list[dict]) -> tuple[ProfileUpdate, str | None]:
+def update_profile(profile: str, new_events: list[dict], today: datetime | None = None) -> tuple[ProfileUpdate, str | None]:
+    """`today` lets the demo fast-forward past a booked date so its check-in isn't treated as from the future."""
     user = (f"<current_profile>\n{profile or '(empty: build the first profile)'}\n</current_profile>\n\n"
             f"<couple>\n{couple_facts()}\n</couple>\n\n"
             f"<new_events>\n{describe_events(new_events)}\n</new_events>\n\n"
-            f"Today is {datetime.now():%m/%d/%Y}.")
+            f"Today is {(today or datetime.now()):%m/%d/%Y}.")
     try:
-        return _call("update_profile.md", user, ProfileUpdate, effort="medium"), None
+        return _call("update_profile.md", user, ProfileUpdate, step="update_profile"), None
     except LLMUnavailable as e:
         return _heuristic_update(profile, new_events), str(e)
 

@@ -1,0 +1,11 @@
+{
+  "use_real_ai": true,
+  "model": "claude-haiku-5-5",
+  "effort": {
+    "write_queries": "low",
+    "recommend": "medium",
+    "update_profile": "medium"
+  },
+  "use_live_places": true,
+  "port": 8000
+}
