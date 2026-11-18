@@ -183,19 +183,23 @@ class Pick(BaseModel):
     why: str
     heads_up: str
     # Stand-in for the return-probability model in Assignment 3: an LLM estimate, not a calibrated probability.
-    return_chance: int | None = Field(default=None, description="0-100 estimate that both partners would want to return")
+    # Required, so the model can't leave it out (a Lab 8 run came back with no %).
+    return_chance: int = Field(description="0-100 estimate that both partners would want to return")
 
 
 class Recs(BaseModel):
     picks: list[Pick]
+    note: str = Field(description="Empty when there are 3 picks; otherwise one sentence to the couple on why there are fewer")
 
 
-def recommend(profile: str, req: store.DateRequest, candidates: list[dict]) -> tuple[list[Pick], str | None]:
+def recommend(profile: str, req: store.DateRequest, candidates: list[dict]) -> tuple[list[Pick], str | None, str]:
+    """Returns (picks, error, note). The note explains to the couple why there are fewer than 3 picks."""
     user = (f"<profile>\n{profile or '(empty)'}\n</profile>\n\n<couple>\n{couple_facts()}\n</couple>\n\n"
             f"<request>\n{req.describe()}\n</request>\n\n<candidates>\n{_candidates_text(candidates)}\n</candidates>")
     error = None
     try:
-        picks = _call("recommend.md", user, Recs, step="recommend").picks
+        recs = _call("recommend.md", user, Recs, step="recommend")
+        picks = recs.picks
         ids = {f"c{i}": v["place_id"] for i, v in enumerate(candidates, 1)}
         seen, valid = set(), []
         for p in picks:                      # never trust ids blindly
@@ -205,11 +209,63 @@ def recommend(profile: str, req: store.DateRequest, candidates: list[dict]) -> t
                 chance = None if p.return_chance is None else max(0, min(100, p.return_chance))
                 valid.append(p.model_copy(update={"place_id": real, "return_chance": chance}))
         if valid:
-            return valid[:3], None
+            checked, extra_note = _check_picks(valid[:3], candidates)
+            note = " ".join(x for x in (recs.note.strip(), extra_note) if x)
+            if checked:
+                return checked, None, note
         error = "Claude's picks didn't match any candidate"
     except LLMUnavailable as e:
         error = str(e)
-    return _heuristic_recommend(profile, req, candidates), error
+    return _heuristic_recommend(profile, req, candidates), error, ""
+
+
+# ---------------------------------------------------------------- Lab 8 controls: checks on the AI's picks
+
+MIN_RETURN_CHANCE = 20          # the AI's own estimate; below this a pick isn't shown
+_NEG = r"(?:\bnot\b|n't\b|\bunconfirmed\b|\bunclear\b|\bunknown\b|\bno\b)"
+# one sentence that mentions vegetarian food and denies it, in either order
+_VEG_DENIAL = re.compile(rf"[^.]*(?:\bvegetarian\b[^.]*{_NEG}|{_NEG}[^.]*\bvegetarian\b)[^.]*\.?\s*", re.I)
+
+
+def _core_name(name: str) -> str:
+    """'Kama - Wicker Park' -> 'kama', 'The Green Ape | Curated by…' -> 'the green ape', 'Elia Chicago' -> 'elia'."""
+    core = re.split(r"\s[-|]\s", name)[0].lower().replace("\u2019", "'")
+    return re.sub(r"\s+(restaurant|chicago)$", "", core).strip()
+
+
+def _check_picks(picks: list[Pick], candidates: list[dict]) -> tuple[list[Pick], str]:
+    """Rules in code that always behave the same way. Each change is logged as an agent step.
+    1. A reason that describes a different candidate (and not its own venue) is re-pointed to that candidate.
+    2. A confirmed-vegetarian venue never shows a caveat saying its vegetarian options aren't confirmed.
+    3. Picks the AI itself rates under MIN_RETURN_CHANCE % aren't shown."""
+    by_id = {v["place_id"]: v for v in candidates}
+    names = {v["place_id"]: _core_name(v["name"]) for v in candidates}
+    changes, kept, used = [], [], {p.place_id for p in picks}
+    for p in picks:
+        text = (p.headline + " " + p.why).lower().replace("\u2019", "'")
+        own = names[p.place_id]
+        if own not in text:
+            others = [pid for pid, n in names.items() if pid != p.place_id and len(n) >= 3 and n in text]
+            if len(others) == 1 and others[0] not in used:
+                changes.append({"check": "reason names another venue", "was": by_id[p.place_id]["name"],
+                                "now": by_id[others[0]]["name"]})
+                used.discard(p.place_id); used.add(others[0])
+                p = p.model_copy(update={"place_id": others[0]})
+        venue = by_id[p.place_id]
+        if venue.get("serves_vegetarian") and _VEG_DENIAL.search(p.heads_up):
+            fixed = _VEG_DENIAL.sub("", p.heads_up).strip()
+            changes.append({"check": "false 'vegetarian not confirmed' caveat removed", "venue": venue["name"],
+                            "was": p.heads_up, "now": fixed})
+            p = p.model_copy(update={"heads_up": fixed})
+        if p.return_chance is not None and p.return_chance < MIN_RETURN_CHANCE:
+            changes.append({"check": f"hidden: AI's own estimate under {MIN_RETURN_CHANCE}%", "venue": venue["name"],
+                            "return_chance": p.return_chance})
+            continue
+        kept.append(p)
+    note = "We left out an option we weren't confident you'd both enjoy." if len(kept) < len(picks) else ""
+    ailog.write("agent_step", tool="pick_checks", sent={"picks": len(picks)},
+                returned={"shown": len(kept), "changes": changes}, error=None)
+    return kept, note
 
 
 def _heuristic_recommend(profile: str, req: store.DateRequest, candidates: list[dict]) -> list[Pick]:
@@ -227,7 +283,7 @@ def _heuristic_recommend(profile: str, req: store.DateRequest, candidates: list[
     ranked = sorted(candidates, key=score, reverse=True)
     n_best = 3 if req.occasion == "special" else 2
     best = ranked[:n_best]
-    picks = [Pick(place_id=v["place_id"], kind="best_fit", headline=v.get("type") or "Strong match",
+    picks = [Pick.model_construct(return_chance=None, place_id=v["place_id"], kind="best_fit", headline=v.get("type") or "Strong match",
                   why=f"Matches what you two keep coming back to: {', '.join(sorted(_words(text(v)) & loves)[:3]) or 'well rated and in budget'}. "
                       "(Offline mode: ranked by keyword overlap with your profile.)",
                   heads_up="") for v in best]
@@ -235,7 +291,7 @@ def _heuristic_recommend(profile: str, req: store.DateRequest, candidates: list[
         rest = [v for v in ranked if v not in best]
         wild = max(rest, key=lambda v: len(_words(text(v)) & explore), default=None)
         if wild:
-            picks.append(Pick(place_id=wild["place_id"], kind="wildcard", headline="Something new",
+            picks.append(Pick.model_construct(return_chance=None, place_id=wild["place_id"], kind="wildcard", headline="Something new",
                               why="A stretch from your 'To explore' list. (Offline mode heuristic.)", heads_up=""))
     return picks
 

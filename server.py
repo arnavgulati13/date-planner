@@ -131,7 +131,7 @@ def recommend():
         returned={"kept": len(kept), "dropped_by_reason": dropped, "widened_search": widened,
                   "sent_to_ranking": min(len(candidates), 25)}, error=None)
 
-    picks, err = llm.recommend(profile, req, candidates[:25]) if candidates else ([], None)
+    picks, err, note = llm.recommend(profile, req, candidates[:25]) if candidates else ([], None, "")
     if err:
         notes.append(f"Ranking: fallback heuristic ({err})")
     session_id = uuid.uuid4().hex[:8]
@@ -153,7 +153,7 @@ def recommend():
         {"name": o["name"], "kind": o["kind"], "return_chance": o["return_chance"], "heads_up": o["heads_up"]} for o in out],
         error=err)
     return reply(session_id=session_id, queries=queries, found=len(found), kept=len(kept),
-                 dropped=dropped, widened=widened, notes=notes, picks=out,
+                 dropped=dropped, widened=widened, notes=notes, picks=out, note=note,
                  source="claude" if not err and llm.available() else "fallback",
                  model=llm.model(), places="google" if places.live() else "sample")
 
