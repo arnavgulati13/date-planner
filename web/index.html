@@ -14,13 +14,15 @@
     </nav>
     <div class="mode" id="mode"></div>
     <div class="couple" id="couple"></div>
+    <button type="button" class="demo-toggle" id="demo-toggle" aria-pressed="false" aria-controls="demo-tools"
+            title="Show the test scenarios and the data log, for demos">🧪 Demo tools</button>
   </header>
 
   <div class="web-layout">
     <main class="web-main">
       <div class="screen" id="screen"></div>
     </main>
-    <aside class="log" aria-label="Captured data log">
+    <aside class="log" id="demo-tools" aria-label="Demo tools: test scenarios and captured data log">
       <h2>Captured data log</h2>
       <p class="note">What the system would store. Stands in for a database; resets on reload.</p>
       <div class="test-mode" id="test-mode"></div>
@@ -45,6 +47,22 @@
         el.className = i === idx ? "on" : i < idx ? "done" : "");
       window.scrollTo(0, 0);
     };
+
+    // Demo tools (Test mode + data log + AI badge) are hidden unless the presenter opens them.
+    // The choice is remembered in this browser only.
+    (function () {
+      const btn = document.getElementById("demo-toggle");
+      const set = open => {
+        document.body.classList.toggle("demo-open", open);
+        btn.setAttribute("aria-pressed", String(open));
+        btn.textContent = open ? "✕ Hide demo tools" : "🧪 Demo tools";
+        try { localStorage.setItem("dateNight.demoTools", open ? "1" : "0"); } catch (e) {}
+      };
+      let saved = false;
+      try { saved = localStorage.getItem("dateNight.demoTools") === "1"; } catch (e) {}
+      set(saved);
+      btn.addEventListener("click", () => set(!document.body.classList.contains("demo-open")));
+    })();
   </script>
   <script src="app.js"></script>
 </body>
