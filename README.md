@@ -43,6 +43,27 @@ Then open **http://localhost:8000** in your browser. The badge in the top bar sa
 
 **Test cases:** [TEST_CASES.md](TEST_CASES.md) has the 5 Lab 8 cases. Run cases 1–4 automatically with `.venv/bin/python -m scripts.run_test_cases`.
 
+## Deploy on Railway
+
+Railway deploys straight from this GitHub repo and redeploys on every merge to `main`. `railway.json` already sets the production start command (gunicorn) and the `/healthz` health check.
+
+1. **Volume:** in the service, add a Volume mounted at `/data`. This keeps the couple, the log and the venue cache across restarts.
+2. **Variables:** in the service's Variables tab, add these. Paste the keys yourself; never commit them.
+
+   | Variable | Value |
+   |---|---|
+   | `ANTHROPIC_API_KEY` | your key |
+   | `GOOGLE_MAPS_API_KEY` | optional; without it the app uses the sample venues |
+   | `APP_PASSWORD` | a password for the group; the browser asks for it before anything loads |
+   | `DATE_NIGHT_DATA` | `/data/couple` |
+   | `DATE_NIGHT_LOGS` | `/data/logs` |
+   | `DATE_NIGHT_CACHE` | `/data/places_cache` |
+
+3. **Domain:** Settings → Networking → Generate Domain.
+4. **Spending caps:** set a monthly limit in the Anthropic console, and a daily quota on the Google key.
+
+The deployment holds **one shared couple**: everyone with the password sees and changes the same data. That's fine for a class demo; real users would each need a login.
+
 ## Settings: `config.json`
 
 | Setting | What it does |

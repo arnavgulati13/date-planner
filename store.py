@@ -52,7 +52,7 @@ def load_couple() -> dict | None:
 
 
 def save_couple(couple: dict) -> None:
-    DATA.mkdir(exist_ok=True)
+    DATA.mkdir(parents=True, exist_ok=True)
     COUPLE.write_text(json.dumps(couple, indent=2))
 
 
@@ -67,7 +67,7 @@ def load_profile() -> str:
 
 
 def save_profile(md: str) -> None:
-    DATA.mkdir(exist_ok=True)
+    DATA.mkdir(parents=True, exist_ok=True)
     PROFILE.write_text(md.strip() + "\n")
 
 
@@ -76,7 +76,7 @@ def save_profile(md: str) -> None:
 def log(type_: str, **fields) -> dict:
     """Append one event. Types: seed_swipe, search, shown, picked, rejected,
     booked, feedback, profile_edit."""
-    DATA.mkdir(exist_ok=True)
+    DATA.mkdir(parents=True, exist_ok=True)
     event = {"ts": fields.pop("ts", None) or datetime.now().isoformat(timespec="seconds"),
              "type": type_, **fields}
     with EVENTS.open("a") as f:
