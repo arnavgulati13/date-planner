@@ -755,7 +755,7 @@ async function init() {
         state.ratings = Object.fromEntries(state.venues.map(v => [v.id, { a: null, b: null }]));
         if (st.couple) {                 // a couple is already set up: start at Plan
           [A, B] = st.partners;
-          state.banner = { title: `Welcome back, ${A} & ${B}`, lines: ["Plan your next date, or pick Happy path in Test mode to start over."] };
+          state.banner = { title: `Welcome back, ${A} & ${B}`, lines: ["Plan your next date below."] };
           state.screen = "plan";
         }
       }
