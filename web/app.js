@@ -416,10 +416,15 @@ function planReady() {
 function render() {
   const who = document.getElementById("couple");   // "Signed in as" always shows the current couple
   if (who) who.innerHTML = `Signed in as <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b>`;
+  // Redraws happen on every click (a rating, a chip). Only jump to the top when the screen itself changes,
+  // so the page stays where the user is while they fill something in.
+  const newScreen = state.screen !== lastScreen;
+  lastScreen = state.screen;
   screenEl.innerHTML = screens[state.screen]();
-  screenEl.scrollTop = 0;
-  if (window.onScreenChange) window.onScreenChange(state.screen);   // updates the step bar in index.html
+  if (newScreen) screenEl.scrollTop = 0;
+  if (window.onScreenChange) window.onScreenChange(state.screen, newScreen);   // step bar in index.html
 }
+let lastScreen = null;
 function go(screen) { state.screen = screen; render(); }
 
 async function runSteps(steps, title, stepMs) {
@@ -722,6 +727,7 @@ async function startScenario(id) {
     ...(sc.prefillReview ? { prefilled: { [A]: state.review.a, [B]: state.review.b, reason: state.review.reasonB } } : {}),
   }, "alert");
   renderTestPanel();
+  lastScreen = null;          // a scenario is a fresh start: always open it at the top
   go(sc.screen);
 }
 
