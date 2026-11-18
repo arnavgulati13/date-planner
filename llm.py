@@ -139,6 +139,9 @@ def _candidates_text(venues: list[dict]) -> str:
         "type": v.get("type", ""), "price": "$" * (v.get("price_level") or 0) or "unknown",
         "rating": v.get("rating"), "summary": v.get("summary", ""),
         "tags": v.get("tags", []), "takes_reservations": v.get("reservable"),
+        # Lab 8 fix: Google's vegetarian flag. The filter already removed places known NOT to serve it,
+        # so this is either "confirmed" or "not listed".
+        "vegetarian": "confirmed" if v.get("serves_vegetarian") else "not listed",
     } for i, v in enumerate(venues, 1)], indent=1)
 
 
