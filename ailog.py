@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import contextvars
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
-LOG = Path(__file__).parent / "logs" / "ai_log.jsonl"
+# DATE_NIGHT_LOGS lets a deployment keep the log on a persistent volume (e.g. /data/logs on Railway).
+LOG = Path(os.getenv("DATE_NIGHT_LOGS") or Path(__file__).parent / "logs") / "ai_log.jsonl"
 
 # AI calls made while handling one web request, so the server can send them back
 # to the web app's on-screen log as well.
@@ -32,7 +34,7 @@ def captured() -> list[dict]:
 
 def write(kind: str, **fields) -> dict:
     entry = {"ts": datetime.now().isoformat(timespec="seconds"), "kind": kind, **fields}
-    LOG.parent.mkdir(exist_ok=True)
+    LOG.parent.mkdir(parents=True, exist_ok=True)
     with LOG.open("a") as f:
         f.write(json.dumps(entry, default=str) + "\n")
     if kind in ("ai_call", "agent_step") and _captured.get() is not None:

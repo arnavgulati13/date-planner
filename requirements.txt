@@ -4,3 +4,4 @@ pydantic>=2
 requests
 python-dotenv
 pytest
+gunicorn>=23

@@ -19,7 +19,7 @@ import config
 
 URL = "https://places.googleapis.com/v1/places:searchText"
 REPO_DATA = Path(__file__).parent / "data"          # shared by tests and real use, whatever DATE_NIGHT_DATA says
-CACHE = REPO_DATA / "places_cache"
+CACHE = Path(os.getenv("DATE_NIGHT_CACHE") or REPO_DATA / "places_cache")   # e.g. /data/places_cache on Railway
 SAMPLE = REPO_DATA / "sample_venues.json"
 FIELDS = ",".join(f"places.{f}" for f in [
     "id", "displayName", "formattedAddress", "shortFormattedAddress", "location",

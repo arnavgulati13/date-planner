@@ -7,12 +7,14 @@ the browser never sees them. Booking is still simulated (no public OpenTable/Res
 """
 from __future__ import annotations
 
+import hmac
 import json
+import os
 import uuid
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 
 load_dotenv()
 
@@ -28,8 +30,28 @@ app = Flask(__name__, static_folder="web", static_url_path="")
 
 
 @app.before_request
+def _password_gate():
+    """When APP_PASSWORD is set (as on Railway), the browser asks for it before anything loads.
+    Any username works. Locally, with no APP_PASSWORD, nothing changes."""
+    password = os.getenv("APP_PASSWORD")
+    if not password or request.path == "/healthz":
+        return None
+    given = request.authorization.password if request.authorization else ""
+    if given and hmac.compare_digest(given.encode(), password.encode()):
+        return None
+    return Response("Date Night is private. Enter the group password.", 401,
+                    {"WWW-Authenticate": 'Basic realm="Date Night"'})
+
+
+@app.before_request
 def _capture_ai_calls():
     ailog.start_capture()
+
+
+@app.get("/healthz")
+def healthz():
+    """For Railway's health check; never behind the password."""
+    return jsonify(ok=True)
 
 
 def reply(**body):
@@ -218,4 +240,7 @@ if __name__ == "__main__":
     print(f"\n  Date Night is running: open http://localhost:{cfg['port']}\n"
           f"  Model: {cfg['model']} · real AI {'on' if llm.available() else 'off'} · "
           f"Places {'live' if places.live() else 'sample venues'}\n")
-    app.run(port=cfg["port"], debug=False)
+    # Locally: localhost on config.json's port. On a host that sets PORT (like Railway), the production
+    # start command in railway.json runs gunicorn instead, but this keeps `python server.py` working there too.
+    port = int(os.getenv("PORT") or cfg["port"])
+    app.run(host="0.0.0.0" if os.getenv("PORT") else "127.0.0.1", port=port, debug=False)
