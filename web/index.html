@@ -40,12 +40,12 @@
   <script>
     // Page chrome: the step bar. The couple label and all product logic are in app.js.
     const STEP_OF = { onboarding: 0, plan: 1, loading: 2, results: 2, confirm: 3, booking: 3, booked: 3, mismatch: 3, review: 4, thanks: 4 };
-    window.onScreenChange = screen => {
+    window.onScreenChange = (screen, newScreen) => {
       document.getElementById("screen").dataset.screen = screen;
       const idx = STEP_OF[screen];
       [...document.getElementById("steps").children].forEach((el, i) =>
         el.className = i === idx ? "on" : i < idx ? "done" : "");
-      window.scrollTo(0, 0);
+      if (newScreen) window.scrollTo(0, 0);   // only on a new screen, never on a redraw of the same one
     };
 
     // Demo tools (Test mode + data log + AI badge) are hidden unless the presenter opens them.
