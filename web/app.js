@@ -246,6 +246,7 @@ const screens = {
       <h1>${esc(fill(S.recommendationsHeader, { date: fmtDate(p.date) }))}</h1>
       <p class="sub">${p.time} · ${esc(p.location)} · ${p.budgets.join("/")} · ${p.vibes.join(", ")}${p.vegetarian ? " · vegetarian" : ""}</p>
       ${pipelineSummary()}
+      ${state.pipeline && state.pipeline.note ? `<div class="flag">ℹ ${esc(state.pipeline.note)}</div>` : ""}
       ${recs.length ? `<div class="recs">` + recs.map((r, i) => `
         <div class="rec">
           <div class="badge ${r.badge}">${r.badge === "best" ? "★ Best fit" : "+ Wildcard"}</div>
