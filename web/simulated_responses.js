@@ -30,7 +30,9 @@ window.SIMULATED_RESPONSES = {
     "locations": ["Fulton Market", "West Loop", "Wicker Park", "Logan Square", "River North"],
     "budgets": ["$", "$$", "$$$", "$$$$"],
     "vibes": ["cozy", "lively", "romantic", "adventurous"],
-    "cravings": ["Italian", "Mexican", "Japanese", "Korean", "Mediterranean", "Indian", "Thai", "Seafood"]
+    "cravings": ["Italian", "Mexican", "Japanese", "Korean", "Mediterranean", "Indian", "Thai", "Seafood"],
+    "dietary": ["Vegetarian", "Vegan", "Gluten-free"],
+    "never": ["Loud rooms", "Long waits", "Sports bars", "Chain restaurants", "Spicy food"]
   },
 
   // Step 2→3 — The "AI is working" screen.

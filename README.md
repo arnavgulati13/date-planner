@@ -37,8 +37,11 @@ Then open **http://localhost:8000** in your browser. The badge in the top bar sa
 
 ## Try it
 
-- **Happy path:** rate the 14 spots, plan a date, pick one, Allow, then click **Fast-forward: after the date** and answer the check-in.
-- **Demo couple:** in Test mode (top of the right-hand column), pick **Demo couple with 5 past dates**. It loads Maya & Sam with a history, so the picks can cite past dates.
+- **Front door:** **Create your couple account** (a couple username, a shared password and both first names), **Log in**, or **Try the demo**.
+- **New couple:** after creating the account you go through setup once: each partner's basics side by side (food needs, "never" answers, cozy-to-lively), then rating spots together (♥, ✕ or "Not been"), then "What we know about you two", which you can correct.
+- **Returning couple:** logging in goes straight to Plan a date. If a booked date has passed without a review, the app asks how it went first. You stay logged in on that device for 30 days.
+- **Demo:** **Try the demo** logs in as Maya & Sam with five past dates and a written profile, reset each time. Real couples never see it.
+- **Planning:** plan a date, pick one, Allow, then click **Fast-forward: after the date** and answer the check-in.
 - **Failure scenarios:** the other Test mode options start at the relevant step on sample data, with a "What to do" hint.
 
 **Test cases:** [TEST_CASES.md](TEST_CASES.md) has the 5 Lab 8 cases. Run cases 1–4 automatically with `.venv/bin/python -m scripts.run_test_cases`.
@@ -54,7 +57,6 @@ Railway deploys straight from this GitHub repo and redeploys on every merge to `
    |---|---|
    | `ANTHROPIC_API_KEY` | your key |
    | `GOOGLE_MAPS_API_KEY` | optional; without it the app uses the sample venues |
-   | `APP_PASSWORD` | a password for the group; the browser asks for it before anything loads |
    | `DATE_NIGHT_DATA` | `/data/couple` |
    | `DATE_NIGHT_LOGS` | `/data/logs` |
    | `DATE_NIGHT_CACHE` | `/data/places_cache` |
@@ -62,7 +64,7 @@ Railway deploys straight from this GitHub repo and redeploys on every merge to `
 3. **Domain:** Settings → Networking → Generate Domain.
 4. **Spending caps:** set a monthly limit in the Anthropic console, and a daily quota on the Google key.
 
-The deployment holds **one shared couple**: everyone with the password sees and changes the same data. That's fine for a class demo; real users would each need a login.
+**Accounts:** each couple's account and data live in their own folder on the volume (`/data/couple/couples/<username>/`), with the password stored as a salted hash. The login cookie is signed with a key the app creates on the volume the first time it runs; set a `SECRET_KEY` variable only if you want to choose it yourself. There's no site-wide password and no usage limit, so set a monthly spending cap in the Anthropic console.
 
 ## Settings: `config.json`
 

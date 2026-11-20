@@ -1,11 +1,16 @@
-"""Everything the app remembers, as plain files in data/.
+"""Everything the app remembers, as plain files, one folder per couple:
 
-couple.json   partner onboarding answers
-profile.md    the memory (rewritten by the LLM after every date)
-events.jsonl  append-only log of every swipe, pick, rejection and rating
+DATA/couples/<username>/
+    account.json  username, names, hashed password (see accounts.py)
+    couple.json   partner onboarding answers
+    profile.md    the memory (rewritten by the LLM after every date)
+    events.jsonl  append-only log of every swipe, pick, rejection and rating
+
+The server picks the couple for each request from the login session (use_couple).
 """
 from __future__ import annotations
 
+import contextvars
 import json
 import os
 from dataclasses import dataclass, field
@@ -14,9 +19,28 @@ from pathlib import Path
 
 # The couple's files. The test runner points DATE_NIGHT_DATA at a scratch folder so tests never touch real data.
 DATA = Path(os.getenv("DATE_NIGHT_DATA") or Path(__file__).parent / "data")
-COUPLE = DATA / "couple.json"
-PROFILE = DATA / "profile.md"
-EVENTS = DATA / "events.jsonl"
+COUPLES = DATA / "couples"
+NOBODY = DATA / "_no_couple"      # used when nobody is logged in; guarded endpoints never write here
+
+_current: contextvars.ContextVar[Path] = contextvars.ContextVar("couple_dir", default=NOBODY)
+
+
+def use_couple(username: str | None) -> None:
+    """Point this request (or script) at one couple's folder."""
+    _current.set(COUPLES / username if username else NOBODY)
+
+
+def couple_dir() -> Path:
+    return _current.get()
+
+
+def current_username() -> str | None:
+    d = couple_dir()
+    return d.name if d.parent == COUPLES else None
+
+
+def _path(name: str) -> Path:
+    return couple_dir() / name
 
 
 @dataclass
@@ -51,12 +75,13 @@ class DateRequest:
 # ---------- couple + profile ----------
 
 def load_couple() -> dict | None:
-    return json.loads(COUPLE.read_text()) if COUPLE.exists() else None
+    p = _path("couple.json")
+    return json.loads(p.read_text()) if p.exists() else None
 
 
 def save_couple(couple: dict) -> None:
-    DATA.mkdir(parents=True, exist_ok=True)
-    COUPLE.write_text(json.dumps(couple, indent=2))
+    couple_dir().mkdir(parents=True, exist_ok=True)
+    _path("couple.json").write_text(json.dumps(couple, indent=2))
 
 
 def partner_names() -> tuple[str, str]:
@@ -66,12 +91,13 @@ def partner_names() -> tuple[str, str]:
 
 
 def load_profile() -> str:
-    return PROFILE.read_text() if PROFILE.exists() else ""
+    p = _path("profile.md")
+    return p.read_text() if p.exists() else ""
 
 
 def save_profile(md: str) -> None:
-    DATA.mkdir(parents=True, exist_ok=True)
-    PROFILE.write_text(md.strip() + "\n")
+    couple_dir().mkdir(parents=True, exist_ok=True)
+    _path("profile.md").write_text(md.strip() + "\n")
 
 
 # ---------- event log ----------
@@ -79,18 +105,19 @@ def save_profile(md: str) -> None:
 def log(type_: str, **fields) -> dict:
     """Append one event. Types: seed_swipe, search, shown, picked, rejected,
     booked, feedback, profile_edit."""
-    DATA.mkdir(parents=True, exist_ok=True)
+    couple_dir().mkdir(parents=True, exist_ok=True)
     event = {"ts": fields.pop("ts", None) or datetime.now().isoformat(timespec="seconds"),
              "type": type_, **fields}
-    with EVENTS.open("a") as f:
+    with _path("events.jsonl").open("a") as f:
         f.write(json.dumps(event) + "\n")
     return event
 
 
 def events() -> list[dict]:
-    if not EVENTS.exists():
+    p = _path("events.jsonl")
+    if not p.exists():
         return []
-    return [json.loads(line) for line in EVENTS.read_text().splitlines() if line.strip()]
+    return [json.loads(line) for line in p.read_text().splitlines() if line.strip()]
 
 
 def pending_checkin(now: datetime | None = None) -> dict | None:
@@ -133,5 +160,6 @@ def stats() -> dict:
 
 
 def reset() -> None:
-    for p in (COUPLE, PROFILE, EVENTS):
-        p.unlink(missing_ok=True)
+    """Clear this couple's answers, profile and history. The account itself stays."""
+    for name in ("couple.json", "profile.md", "events.jsonl"):
+        _path(name).unlink(missing_ok=True)

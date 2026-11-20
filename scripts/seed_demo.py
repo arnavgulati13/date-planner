@@ -103,5 +103,8 @@ def seed() -> None:
 
 
 if __name__ == "__main__":
+    import accounts
+    accounts.ensure_demo()
+    store.use_couple(accounts.DEMO)
     seed()
-    print(f"Seeded {A} & {B}: {len(store.events())} events, profile at {store.PROFILE}")
+    print(f"Seeded {A} & {B}: {len(store.events())} events, profile in {store.couple_dir()}")
