@@ -7,10 +7,13 @@ the browser never sees them. Booking is still simulated (no public OpenTable/Res
 """
 from __future__ import annotations
 
+import contextvars
 import hmac
 import json
 import os
+import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
@@ -21,6 +24,7 @@ load_dotenv()
 import ailog  # noqa: E402
 import config  # noqa: E402
 import filter as constraint_filter  # noqa: E402
+import geo  # noqa: E402
 import llm  # noqa: E402
 import places  # noqa: E402
 import store  # noqa: E402
@@ -118,7 +122,15 @@ def _request(body: dict) -> store.DateRequest:
     budgets = sorted(len(x) for x in body["budgets"])
     return store.DateRequest(when=when, area=body["location"], price_min=budgets[0], price_max=budgets[-1],
                              vibes=body.get("vibes", []), vegetarian=bool(body.get("vegetarian")),
-                             notes=body.get("note", ""))
+                             notes=body.get("note", ""), craving=(body.get("craving") or "").strip())
+
+
+def _search_all(queries: list[str], prices: range, area: str) -> list[dict]:
+    """Run the searches at the same time instead of one after another. Each runs in a copy of this
+    request's context, so its log lines still reach the on-screen log."""
+    with ThreadPoolExecutor(max_workers=len(queries) or 1) as pool:
+        jobs = [pool.submit(contextvars.copy_context().run, places.search, q, prices, area) for q in queries]
+        return [v for job in jobs for v in job.result()]
 
 
 @app.post("/api/recommend")
@@ -128,13 +140,17 @@ def recommend():
     exclude = set(body.get("exclude", []))
     profile = store.load_profile()
     notes = []
+    t0 = time.monotonic()
+    timing = {}
 
     q, err = llm.write_queries(profile, req)
+    timing["write_searches"] = round(time.monotonic() - t0, 1)
     if err:
         notes.append(f"Searches: fallback heuristic ({err})")
     queries = q.queries + [q.explore_query]
     prices = range(req.price_min, req.price_max + 1)
-    found = [v for x in queries for v in places.search(x, prices)]
+    t = time.monotonic()
+    found = _search_all(queries, prices, req.area)
     store.log("search", queries=queries)
 
     visited = store.recently_visited()
@@ -142,10 +158,14 @@ def recommend():
     widened = False
     if len(kept) < 6:
         widened = True
-        extra = places.search(f"restaurant {req.area} Chicago", prices) + places.search(f"bar {req.area} Chicago", prices)
+        extra = _search_all([f"restaurant {req.area} Chicago", f"bar {req.area} Chicago"], prices, req.area)
         found = found + extra
         kept, dropped = constraint_filter.apply(found, req, visited)
     candidates = [v for v in kept if v["place_id"] not in exclude]
+    for v in candidates:
+        d = geo.venue_miles(v, req.area)
+        v["_miles"] = round(d, 1) if d is not None else None
+    timing["search_and_filter"] = round(time.monotonic() - t, 1)
     ailog.write("agent_step", tool="constraint_filter", sent={
         "venues_in": len(found), "rules": {"when": req.when.isoformat(), "budget": [req.price_min, req.price_max],
                                            "vegetarian": req.vegetarian, "min_rating": constraint_filter.MIN_RATING,
@@ -153,7 +173,10 @@ def recommend():
         returned={"kept": len(kept), "dropped_by_reason": dropped, "widened_search": widened,
                   "sent_to_ranking": min(len(candidates), 25)}, error=None)
 
+    t = time.monotonic()
     picks, err, note = llm.recommend(profile, req, candidates[:25]) if candidates else ([], None, "")
+    timing["pick_3"] = round(time.monotonic() - t, 1)
+    timing["total"] = round(time.monotonic() - t0, 1)
     if err:
         notes.append(f"Ranking: fallback heuristic ({err})")
     session_id = uuid.uuid4().hex[:8]
@@ -167,15 +190,17 @@ def recommend():
         out.append({
             "id": v["place_id"], "name": v["name"], "type": v.get("type", ""),
             "price": "$" * (v.get("price_level") or 0) or "?", "rating": v.get("rating"),
-            "address": v.get("address", ""), "maps_url": v.get("maps_url"), "reservable": v.get("reservable"),
+            "address": geo.clean_address(v.get("address", "")), "miles": v.get("_miles"),
+            "maps_url": v.get("maps_url"), "reservable": v.get("reservable"),
             "kind": p.kind, "headline": p.headline, "why": p.why, "heads_up": p.heads_up,
             "return_chance": p.return_chance,
         })
     ailog.write("agent_step", tool="final_picks", sent={"session_id": session_id}, returned=[
         {"name": o["name"], "kind": o["kind"], "return_chance": o["return_chance"], "heads_up": o["heads_up"]} for o in out],
         error=err)
+    ailog.write("agent_step", tool="timing", sent={"session_id": session_id}, returned=timing, error=None)
     return reply(session_id=session_id, queries=queries, found=len(found), kept=len(kept),
-                 dropped=dropped, widened=widened, notes=notes, picks=out, note=note,
+                 dropped=dropped, widened=widened, notes=notes, picks=out, note=note, timing=timing,
                  source="claude" if not err and llm.available() else "fallback",
                  model=llm.model(), places="google" if places.live() else "sample")
 
@@ -225,6 +250,22 @@ def review():
     store.save_profile(result.profile_md)
     store.log("profile_updated", learned=result.learned)
     return reply(learned=result.learned, profile=result.profile_md, error=err)
+
+
+@app.get("/api/profile")
+def get_profile():
+    return reply(profile=store.load_profile(), partners=list(store.partner_names()))
+
+
+@app.post("/api/profile")
+def save_profile():
+    """The couple corrects what the app believes about them. Their edit replaces the profile as written."""
+    md = (request.get_json().get("profile") or "").strip()
+    if not md:
+        return jsonify(error="The profile can't be empty."), 400
+    store.save_profile(md)
+    store.log("profile_edit")
+    return reply(profile=store.load_profile())
 
 
 @app.post("/api/log")

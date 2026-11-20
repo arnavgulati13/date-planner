@@ -8,3 +8,4 @@ You get the couple's taste profile (their memory) and tonight's request. Write s
 - Restaurants and bars only (a bar with live music counts).
 - Keep each search under 8 words. Always include the area, and add "Chicago" unless the area already names a city.
 - If the request has extra notes, honour them in at least one search.
+- If the request has a craving (a cuisine or dish), make at least two of the searches about it, e.g. "cozy Italian restaurant Fulton Market Chicago".

@@ -135,7 +135,7 @@ def _candidates_text(venues: list[dict]) -> str:
     # Short ids (c1, c2...) instead of Google's 27-char place ids, which the model
     # sometimes copies with a typo. recommend() maps them back.
     return json.dumps([{
-        "place_id": f"c{i}", "name": v["name"], "where": v.get("address", ""),
+        "place_id": f"c{i}", "name": v["name"], "where": v.get("address", ""), "miles_away": v.get("_miles"),
         "type": v.get("type", ""), "price": "$" * (v.get("price_level") or 0) or "unknown",
         "rating": v.get("rating"), "summary": v.get("summary", ""),
         "tags": v.get("tags", []), "takes_reservations": v.get("reservable"),

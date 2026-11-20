@@ -16,6 +16,7 @@ import requests
 
 import ailog
 import config
+import geo
 
 URL = "https://places.googleapis.com/v1/places:searchText"
 REPO_DATA = Path(__file__).parent / "data"          # shared by tests and real use, whatever DATE_NIGHT_DATA says
@@ -40,7 +41,7 @@ def _normalize(p: dict) -> dict:
     return {
         "place_id": p["id"],
         "name": p.get("displayName", {}).get("text", "?"),
-        "address": p.get("shortFormattedAddress") or p.get("formattedAddress", ""),
+        "address": geo.clean_address(p.get("shortFormattedAddress") or p.get("formattedAddress", "")),
         "lat": p.get("location", {}).get("latitude"),
         "lng": p.get("location", {}).get("longitude"),
         "price_level": PRICE.get(p.get("priceLevel")),
@@ -72,10 +73,11 @@ def _sample_search(query: str) -> list[dict]:
     return sorted(local, key=score, reverse=True)[:10]
 
 
-def search(query: str, price_levels: range | None = None) -> list[dict]:
+def search(query: str, price_levels: range | None = None, area: str = "") -> list[dict]:
     """One tool step of the agent: run a search the model wrote. Logged to logs/ai_log.jsonl."""
-    sent = {"query": query, "price_levels": list(price_levels or [])}
-    key = hashlib.sha1(f"{live()}|{query}|{list(price_levels or [])}".encode()).hexdigest()[:16]
+    sent = {"query": query, "price_levels": list(price_levels or []), "near": area or None}
+    center = geo.center(area) if area else None
+    key = hashlib.sha1(f"{live()}|{query}|{list(price_levels or [])}|{center}".encode()).hexdigest()[:16]
     cached = CACHE / f"{key}.json"
     if cached.exists():
         venues = json.loads(cached.read_text())
@@ -84,6 +86,9 @@ def search(query: str, price_levels: range | None = None) -> list[dict]:
 
     if live():
         body = {"textQuery": query, "pageSize": 10}
+        if center:      # prefer results near the chosen neighborhood
+            body["locationBias"] = {"circle": {"center": {"latitude": center[0], "longitude": center[1]},
+                                               "radius": geo.MAX_MILES * 1609.0}}
         if price_levels:
             body["priceLevels"] = [PRICE_ENUM[p] for p in price_levels if p in PRICE_ENUM]
         try:

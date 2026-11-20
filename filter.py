@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
+import geo
 from store import DateRequest
 
 MIN_RATING = 4.2
@@ -44,6 +45,9 @@ def check(venue: dict, req: DateRequest, visited: set[str]) -> str | None:
         return "outside budget"
     if req.vegetarian and venue.get("serves_vegetarian") is False:
         return "no vegetarian options"
+    distance = geo.venue_miles(venue, req.area)
+    if distance is not None and distance > geo.MAX_MILES:
+        return f"more than {geo.MAX_MILES:g} mi away"
     # must be open on arrival and still open an hour later
     for t in (req.when, req.when + timedelta(minutes=60)):
         if is_open_at(venue.get("hours"), t) is False:

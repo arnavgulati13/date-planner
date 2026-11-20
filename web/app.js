@@ -208,7 +208,7 @@ const screens = {
   plan() {
     const p = state.plan, o = S.planOptions;
     const chips = (key, opts) => `<div class="chips">${opts.map(x =>
-      `<button class="chip ${p[key].includes(x) ? "on" : ""}" data-act="chip" data-key="${key}" data-val="${x}">${x}</button>`).join("")}</div>`;
+      `<button class="chip ${(p[key] || []).includes(x) ? "on" : ""}" data-act="chip" data-key="${key}" data-val="${x}">${x}</button>`).join("")}</div>`;
     return `
       ${banner()}
       <span class="step-tag">Step 2 · Planning</span>
@@ -223,6 +223,8 @@ const screens = {
       <select data-field="location"><option value="">Pick a neighborhood…</option>${o.locations.map(l => `<option ${p.location === l ? "selected" : ""}>${l}</option>`).join("")}</select>
       <label class="f">Budget <span class="req">*</span> <span style="text-transform:none;font-weight:500">(pick one or more)</span></label>${chips("budgets", o.budgets)}
       <label class="f">Vibe <span class="req">*</span> <span style="text-transform:none;font-weight:500">(pick one or more)</span></label>${chips("vibes", o.vibes)}
+      <label class="f">Craving anything? <span style="text-transform:none;font-weight:500">(optional)</span></label>${chips("cravings", o.cravings || [])}
+      <input type="text" id="craving-text" data-field="cravingText" placeholder="Or type it: ramen, a tasting menu, oysters" value="${esc(p.cravingText || "")}" style="margin-top:8px">
       <label class="check"><input type="checkbox" data-field="vegetarian" ${p.vegetarian ? "checked" : ""}> Needs vegetarian options</label>
       <div style="height:18px"></div>
       <button class="btn" id="find-btn" data-act="findDates" ${planReady() ? "" : "disabled"}>Find dates</button>`;
@@ -244,7 +246,7 @@ const screens = {
     return `
       <span class="step-tag">Step 3 · Selection</span>
       <h1>${esc(fill(S.recommendationsHeader, { date: fmtDate(p.date) }))}</h1>
-      <p class="sub">${p.time} · ${esc(p.location)} · ${p.budgets.join("/")} · ${p.vibes.join(", ")}${p.vegetarian ? " · vegetarian" : ""}</p>
+      <p class="sub">${p.time} · ${esc(p.location)} · ${p.budgets.join("/")} · ${p.vibes.join(", ")}${p.vegetarian ? " · vegetarian" : ""}${cravingOf(p) ? " · craving " + esc(cravingOf(p)) : ""}</p>
       ${pipelineSummary()}
       ${state.pipeline && state.pipeline.note ? `<div class="flag">ℹ ${esc(state.pipeline.note)}</div>` : ""}
       ${recs.length ? `<div class="recs">` + recs.map((r, i) => `
@@ -357,6 +359,38 @@ const screens = {
       <p class="hint">Skipping saves this as “missing”, not as a “no”.</p>`;
   },
 
+  profile() {
+    const md = state.profileMd || "";
+    if (state.profileEditing) {
+      return `
+        <span class="step-tag">Your profile</span>
+        <h1>Fix what we know</h1>
+        <p class="sub">Edit anything that's wrong. Keep the section headings so the app can read it.</p>
+        <textarea id="profile-edit" rows="18" style="font:13px/1.5 ui-monospace, Menlo, monospace">${esc(md)}</textarea>
+        ${state.profileError ? `<p class="hint" style="color:var(--bad);text-align:left">${esc(state.profileError)}</p>` : ""}
+        <div style="height:12px"></div>
+        <button class="btn" data-act="saveProfile">Save</button>
+        <button class="btn secondary" data-act="cancelProfileEdit">Cancel</button>`;
+    }
+    const sections = md.split(/\n(?=## )/).filter(s => s.trim().startsWith("## ")).map(s => {
+      const [head, ...rest] = s.trim().split("\n");
+      const items = rest.filter(l => l.trim().startsWith("- ")).map(l => {
+        const t = l.trim().slice(2), m = t.match(/^(.*?)\s*\[(.*)\]\s*$/);
+        return m ? `<li>${esc(m[1])} <span class="meta">${esc(m[2])}</span></li>` : `<li>${esc(t)}</li>`;
+      });
+      return `<div class="profile-sec"><h3>${esc(head.replace(/^##\s*/, "").replace(/\s*\(.*\)\s*$/, ""))}</h3>
+        ${items.length ? `<ul>${items.join("")}</ul>` : `<p class="meta">Nothing yet.</p>`}</div>`;
+    });
+    return `
+      <span class="step-tag">Your profile</span>
+      <h1>What we know about ${esc(A)} &amp; ${esc(B)}</h1>
+      <p class="sub">Built from your ratings and every date you review. The brackets show the evidence.</p>
+      ${sections.length ? sections.join("") : `<p class="flag">No profile yet. Rate some spots to start one.</p>`}
+      <div style="height:12px"></div>
+      <button class="btn" data-act="goPlan">Plan a date</button>
+      <button class="btn secondary" data-act="editProfile">Fix something</button>`;
+  },
+
   thanks() {
     const r = state.selected, v = state.verdict;
     const icon = { joint_yes: "💞", joint_no: "📝", split: "⚖️", missing: "⏭️" }[v];
@@ -384,7 +418,9 @@ function pipelineSummary() {
   if (!p) return "";
   const by = p.source === "claude" ? `Picked by Claude (${p.model})` : "Picked by the fallback heuristic";
   const dropped = Object.entries(p.dropped || {}).map(([r, n]) => `${n} ${r}`).join(", ");
-  return `<details class="how"><summary>${esc(by)} · ${p.found} found → ${p.kept} passed your rules → ${state.current.length} picked</summary>
+  const secs = p.timing && p.timing.total != null ? ` · ${Math.round(p.timing.total)}s` : "";
+  return `<details class="how"><summary>${esc(by)} · ${p.found} found → ${p.kept} passed your rules → ${state.current.length} picked${secs}</summary>
+    ${p.timing ? `<div><b>Time:</b> writing searches ${p.timing.write_searches}s · searching and filtering ${p.timing.search_and_filter}s · picking ${p.timing.pick_3}s</div>` : ""}
     <div><b>Searches Claude wrote:</b> ${p.queries.map(q => `“${esc(q)}”`).join(" · ")}</div>
     ${dropped ? `<div><b>Filtered out:</b> ${esc(dropped)}</div>` : ""}
     <div><b>Venues from:</b> ${p.places === "google" ? "Google Places (live)" : "sample Chicago venues"}</div>
@@ -408,6 +444,10 @@ async function whileLoading(steps, title, promise) {
   finally { done = true; clearInterval(timer); while (i < steps.length) tick(); await sleep(250); }
 }
 
+function cravingOf(p) {
+  return [...(p.cravings || []), (p.cravingText || "").trim()].filter(Boolean).join(", ");
+}
+
 function planReady() {
   const p = state.plan;
   return p.date && p.time && p.location && p.budgets.length && p.vibes.length;
@@ -415,7 +455,9 @@ function planReady() {
 
 function render() {
   const who = document.getElementById("couple");   // "Signed in as" always shows the current couple
-  if (who) who.innerHTML = `Signed in as <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b>`;
+  if (who) who.innerHTML = live()
+    ? `<button type="button" class="couple-link" data-profile>Planning for <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b> <span aria-hidden="true">›</span></button>`
+    : `Planning for <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b>`;
   // Redraws happen on every click (a rating, a chip). Only jump to the top when the screen itself changes,
   // so the page stays where the user is while they fill something in.
   const newScreen = state.screen !== lastScreen;
@@ -450,10 +492,10 @@ async function showRecommendations(reason) {
     try {
       const res = await whileLoading(
         ["Writing searches from what you two love", "Searching for venues", "Filtering against your rules", "Picking 3"],
-        reason, api("/api/recommend", { ...state.plan, note: state.note, exclude: state.shown }));
+        reason, api("/api/recommend", { ...state.plan, craving: cravingOf(state.plan), note: state.note, exclude: state.shown }));
       state.pipeline = res;
       state.current = res.picks.map(p => ({
-        id: p.id, name: p.name, type: p.type, price: p.price, rating: p.rating ?? "?", distance: p.address,
+        id: p.id, name: p.name, type: p.type, price: p.price, rating: p.rating ?? "?", distance: (p.miles != null ? p.miles + " mi · " : "") + p.address,
         headline: p.headline, why: p.why, percent: p.return_chance, openSlot: state.plan.time,
         showFlag: !!p.heads_up, flag: p.heads_up, badge: p.kind === "wildcard" ? "wild" : "best", kind: p.kind,
       }));
@@ -496,7 +538,7 @@ const actions = {
     go("plan");
   },
   chip(d) {
-    const arr = state.plan[d.key];
+    const arr = state.plan[d.key] || (state.plan[d.key] = []);
     const i = arr.indexOf(d.val);
     i >= 0 ? arr.splice(i, 1) : arr.push(d.val);
     render();
@@ -574,6 +616,19 @@ const actions = {
     navigator.clipboard?.writeText(text).catch(() => {});
     btn.textContent = "Copied ✓";
     log("plan_shared", { text });
+  },
+  editProfile() { state.profileEditing = true; state.profileError = null; render(); },
+  cancelProfileEdit() { state.profileEditing = false; render(); },
+  async saveProfile() {
+    const md = document.getElementById("profile-edit").value;
+    try {
+      const res = await api("/api/profile", { profile: md });
+      state.profileMd = res.profile; state.profileEditing = false;
+      log("profile_edited", { chars: md.length });
+    } catch (e) {
+      state.profileError = "Couldn't save. Keep at least one section and try again.";
+    }
+    render();
   },
   goReview() { state.review = { a: null, b: null, reasonA: null, reasonB: null }; go("review"); },
   review(d) {
@@ -734,6 +789,16 @@ async function startScenario(id) {
 testEl.addEventListener("click", e => {
   const btn = e.target.closest("[data-scenario]");
   if (btn) startScenario(btn.dataset.scenario);
+});
+
+document.getElementById("couple").addEventListener("click", async e => {
+  if (!e.target.closest("[data-profile]") || !live()) return;
+  try {
+    const res = await api("/api/profile");
+    state.profileMd = res.profile; state.profileEditing = false; state.profileError = null;
+    log("profile_viewed", {});
+    go("profile");
+  } catch (err) { /* stay where we are */ }
 });
 
 screenEl.addEventListener("click", e => {

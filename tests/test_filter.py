@@ -56,3 +56,14 @@ def test_apply_dedupes_and_counts():
     kept, dropped = f.apply(vs, req(), set())
     assert [v["place_id"] for v in kept] == ["a"]
     assert dropped == {"rating too low": 1}
+
+
+def test_too_far_from_the_neighborhood():
+    near = venue(place_id="near", lat=41.8870, lng=-87.6480)     # in Fulton Market
+    far = venue(place_id="far", lat=41.8580, lng=-87.6640)       # about 2 mi south
+    unknown = venue(place_id="unknown")                          # no coordinates: can't judge, so it stays
+    r = req(area="Fulton Market")
+    assert f.check(near, r, set()) is None
+    assert f.check(far, r, set()).startswith("more than")
+    assert f.check(unknown, r, set()) is None
+    assert f.check(far, req(area="Somewhere new"), set()) is None   # unknown area: no distance rule
