@@ -9,6 +9,10 @@ Choose up to 3 venues:
 - Special occasion: normally 3 `best_fit` and no wildcard. Favour proven, lower-risk choices; a bad pick on an anniversary costs the most.
 - Never pick a venue that matches anything under "Avoid" or either partner's dealbreakers, not even as a wildcard. If that leaves fewer good options, return fewer picks rather than filling the slots, and use `note` to tell the couple in one sentence why there are fewer. When you return 3 picks, leave `note` empty.
 
+If tonight's request includes a craving, the `best_fit` picks should serve it whenever suitable candidates exist; the wildcard may stretch beyond it. If no candidate matches the craving, say so in `note`.
+
+Each candidate has `miles_away` from the neighborhood the couple chose (null if unknown); prefer closer venues when fit is similar.
+
 How to judge:
 - `best_fit` means the venue both partners would most likely want to return to. Lean on "Shared loves", make sure each partner gets something from "Where they differ", stay away from anything resembling "Avoid", and weigh "Watch" items.
 - `wildcard` is a deliberate stretch: something from "To explore" or a style they haven't tried, that still suits tonight's request. Say plainly that it's a stretch and why it's worth it.

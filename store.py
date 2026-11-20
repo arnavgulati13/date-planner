@@ -29,6 +29,7 @@ class DateRequest:
     occasion: str = "casual"    # casual | special
     notes: str = ""             # "anything else?" + refine text
     vegetarian: bool = False
+    craving: str = ""           # optional cuisine or dish for tonight, e.g. "Italian"
 
     def describe(self) -> str:
         lines = [
@@ -38,6 +39,8 @@ class DateRequest:
             f"Vibe: {', '.join(self.vibes) or 'no preference'}",
             f"Occasion: {self.occasion}",
         ]
+        if self.craving:
+            lines.append(f"Craving tonight: {self.craving}")
         if self.vegetarian:
             lines.append("Needs good vegetarian options")
         if self.notes:

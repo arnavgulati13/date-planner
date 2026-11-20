@@ -29,7 +29,8 @@ window.SIMULATED_RESPONSES = {
     "times": ["6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM", "9:00 PM"],
     "locations": ["Fulton Market", "West Loop", "Wicker Park", "Logan Square", "River North"],
     "budgets": ["$", "$$", "$$$", "$$$$"],
-    "vibes": ["cozy", "lively", "romantic", "adventurous"]
+    "vibes": ["cozy", "lively", "romantic", "adventurous"],
+    "cravings": ["Italian", "Mexican", "Japanese", "Korean", "Mediterranean", "Indian", "Thai", "Seafood"]
   },
 
   // Step 2→3 — The "AI is working" screen.

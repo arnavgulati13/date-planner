@@ -194,3 +194,12 @@ body:not(.demo-open) .mode { display: none; }
 body:not(.demo-open) .couple { margin-left: auto; }
 body:not(.demo-open) .web-layout { grid-template-columns: minmax(0, 1fr); max-width: 1100px; }
 
+
+/* ---------- Profile view + "Planning for" link ---------- */
+.couple-link { border: 0; background: none; padding: 4px 6px; border-radius: 8px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; }
+.couple-link:hover { background: var(--bg); color: var(--ink); }
+.couple-link:focus-visible { outline: 2px solid var(--b); outline-offset: 2px; }
+.profile-sec { border: 1.5px solid var(--line); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 10px; }
+.profile-sec h3 { margin: 0 0 6px; font-size: 15px; }
+.profile-sec ul { margin: 0; padding-left: 18px; }
+.profile-sec li { margin: 3px 0; }

@@ -1,0 +1,23 @@
+# Pings the live app every 10 minutes so Railway never serves a cold start during a demo.
+# /healthz is outside the password gate and makes no AI calls, so this costs nothing.
+name: Keep the live app warm
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /healthz
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 https://date-planner-production-00172e77.up.railway.app/healthz) || true
+            echo "attempt $i: $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 20
+          done
+          echo "The live app didn't answer /healthz"; exit 1
