@@ -16,6 +16,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+import store
+
 # DATE_NIGHT_LOGS lets a deployment keep the log on a persistent volume (e.g. /data/logs on Railway).
 LOG = Path(os.getenv("DATE_NIGHT_LOGS") or Path(__file__).parent / "logs") / "ai_log.jsonl"
 
@@ -33,7 +35,8 @@ def captured() -> list[dict]:
 
 
 def write(kind: str, **fields) -> dict:
-    entry = {"ts": datetime.now().isoformat(timespec="seconds"), "kind": kind, **fields}
+    entry = {"ts": datetime.now().isoformat(timespec="seconds"), "kind": kind,
+             "couple": store.current_username(), **fields}
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with LOG.open("a") as f:
         f.write(json.dumps(entry, default=str) + "\n")

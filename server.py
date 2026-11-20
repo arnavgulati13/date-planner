@@ -8,8 +8,9 @@ the browser never sees them. Booking is still simulated (no public OpenTable/Res
 from __future__ import annotations
 
 import contextvars
-import hmac
+import functools
 import json
+import secrets
 import os
 import time
 import uuid
@@ -17,10 +18,11 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
-from flask import Flask, Response, jsonify, request
+from flask import Flask, jsonify, request, session
 
 load_dotenv()
 
+import accounts  # noqa: E402
 import ailog  # noqa: E402
 import config  # noqa: E402
 import filter as constraint_filter  # noqa: E402
@@ -33,23 +35,49 @@ from scripts import seed_demo  # noqa: E402
 app = Flask(__name__, static_folder="web", static_url_path="")
 
 
-@app.before_request
-def _password_gate():
-    """When APP_PASSWORD is set (as on Railway), the browser asks for it before anything loads.
-    Any username works. Locally, with no APP_PASSWORD, nothing changes."""
-    password = os.getenv("APP_PASSWORD")
-    if not password or request.path == "/healthz":
-        return None
-    given = request.authorization.password if request.authorization else ""
-    if given and hmac.compare_digest(given.encode(), password.encode()):
-        return None
-    return Response("Date Night is private. Enter the group password.", 401,
-                    {"WWW-Authenticate": 'Basic realm="Date Night"'})
+def _secret_key() -> str:
+    """Signs the login cookie. Uses SECRET_KEY if set; otherwise makes one once and keeps it on the
+    data volume, so logins survive restarts without any extra setup."""
+    if os.getenv("SECRET_KEY"):
+        return os.environ["SECRET_KEY"]
+    f = store.DATA / ".secret_key"
+    if not f.exists():
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(secrets.token_hex(32))
+    return f.read_text().strip()
+
+
+app.secret_key = _secret_key()
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=bool(os.getenv("PORT")),          # https on Railway; plain http locally
+    PERMANENT_SESSION_LIFETIME=timedelta(days=30),          # "stay logged in"
+)
 
 
 @app.before_request
-def _capture_ai_calls():
+def _load_couple():
+    """Every request works on the logged-in couple's folder, or on nobody's."""
+    username = session.get("couple")
+    store.use_couple(username if accounts.exists(username) else None)
     ailog.start_capture()
+
+
+def couple_required(view):
+    @functools.wraps(view)
+    def wrapper(*args, **kwargs):
+        if not store.current_username():
+            return jsonify(error="Log in first."), 401
+        return view(*args, **kwargs)
+    return wrapper
+
+
+def _log_in(username: str) -> None:
+    session.clear()
+    session["couple"] = username
+    session.permanent = True
+    store.use_couple(username)
 
 
 @app.get("/healthz")
@@ -81,6 +109,54 @@ def status():
     )
 
 
+# ------------------------------------------------------------------ accounts
+
+def _me() -> dict:
+    username = store.current_username()
+    if not username:
+        return {"logged_in": False}
+    couple = store.load_couple() or {}
+    partners = couple.get("partners", [])
+    vegetarian = any(d.lower() in ("vegetarian", "vegan") for p in partners for d in p.get("dietary", []))
+    # A booked date that has happened and hasn't been reviewed: ask about it before the next plan.
+    pending = store.pending_checkin()
+    return {"logged_in": True, "username": username, "demo": username == accounts.DEMO,
+            "partners": list(store.partner_names()), "onboarded": bool(store.load_profile()),
+            "vegetarian": vegetarian, "pending_review": pending}
+
+
+@app.get("/api/me")
+def me():
+    return reply(**_me())
+
+
+@app.post("/api/signup")
+def signup():
+    b = request.get_json()
+    error = accounts.create(b.get("username"), b.get("password"), b.get("name_a"), b.get("name_b"))
+    if error:
+        return jsonify(error=error), 400
+    _log_in(b["username"].strip().lower())
+    store.log("account_created")
+    return reply(**_me())
+
+
+@app.post("/api/login")
+def login():
+    b = request.get_json()
+    username = (b.get("username") or "").strip().lower()
+    if not accounts.verify(username, b.get("password")):
+        return jsonify(error="That username and password don't match. Try again."), 401
+    _log_in(username)
+    return reply(**_me())
+
+
+@app.post("/api/logout")
+def logout():
+    session.clear()
+    return jsonify(ok=True)
+
+
 @app.get("/api/seeds")
 def seeds():
     venues = json.loads(places.SAMPLE.read_text())
@@ -89,17 +165,22 @@ def seeds():
 
 
 @app.post("/api/onboard")
+@couple_required
 def onboard():
-    """Start fresh: save the couple, log every rating, and have Claude write the first memory."""
+    """Set up (or redo) the couple: each partner's basics, their ratings, and Claude's first profile."""
     body = request.get_json()
-    names = body.get("partners") or ["Maya", "Sam"]
+    names = list(store.partner_names())
+    basics = body.get("basics") or {}
     venues = {v["place_id"]: v for v in json.loads(places.SAMPLE.read_text())}
     store.reset()
-    store.save_couple({"partners": [{"name": n} for n in names]})
+    store.save_couple({"partners": [
+        {"name": n, "dietary": basics.get(k, {}).get("dietary", []), "never": basics.get(k, {}).get("never", []),
+         "vibe": basics.get(k, {}).get("vibe", 5)}
+        for n, k in zip(names, ("a", "b"))]})
     for place_id, r in body["ratings"].items():
         v = venues[place_id]
         for who, rating in zip(names, (r.get("a"), r.get("b"))):
-            if rating:
+            if rating in ("heart", "hate"):          # "not been" teaches nothing, so it isn't logged
                 store.log("seed_swipe", partner=who, place_id=place_id, name=v["name"],
                           venue_type=v["type"], liked=rating == "heart")
     result, err = llm.update_profile("", store.events())
@@ -110,9 +191,11 @@ def onboard():
 
 @app.post("/api/demo")
 def demo():
-    """Load the made-up demo couple with five past dates and a written memory."""
+    """'Try the demo': log in as Maya & Sam, with a fresh copy of their five past dates and profile."""
+    accounts.ensure_demo()
+    _log_in(accounts.DEMO)
     seed_demo.seed()
-    return reply(partners=list(store.partner_names()), profile=store.load_profile())
+    return reply(partners=list(store.partner_names()), profile=store.load_profile(), **{"me": _me()})
 
 
 # ------------------------------------------------------------------ plan -> picks
@@ -134,6 +217,7 @@ def _search_all(queries: list[str], prices: range, area: str) -> list[dict]:
 
 
 @app.post("/api/recommend")
+@couple_required
 def recommend():
     body = request.get_json()
     req = _request(body)
@@ -208,6 +292,7 @@ def recommend():
 # ------------------------------------------------------------------ pick, book, review
 
 @app.post("/api/pick")
+@couple_required
 def pick():
     b = request.get_json()
     store.log("picked", session_id=b["session_id"], place_id=b["place_id"], name=b["name"], kind=b["kind"])
@@ -215,6 +300,7 @@ def pick():
 
 
 @app.post("/api/book")
+@couple_required
 def book():
     """Booking is simulated in the web app; this records it so the check-in and 'visited lately' rule work."""
     b = request.get_json()
@@ -226,6 +312,7 @@ def book():
 
 
 @app.post("/api/review")
+@couple_required
 def review():
     """Save each partner's answer. A split stays split; a skip is 'missing' and teaches the memory nothing."""
     b = request.get_json()
@@ -253,11 +340,13 @@ def review():
 
 
 @app.get("/api/profile")
+@couple_required
 def get_profile():
     return reply(profile=store.load_profile(), partners=list(store.partner_names()))
 
 
 @app.post("/api/profile")
+@couple_required
 def save_profile():
     """The couple corrects what the app believes about them. Their edit replaces the profile as written."""
     md = (request.get_json().get("profile") or "").strip()

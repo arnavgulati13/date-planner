@@ -203,3 +203,21 @@ body:not(.demo-open) .web-layout { grid-template-columns: minmax(0, 1fr); max-wi
 .profile-sec h3 { margin: 0 0 6px; font-size: 15px; }
 .profile-sec ul { margin: 0; padding-left: 18px; }
 .profile-sec li { margin: 3px 0; }
+
+/* ---------- Front door, sign-up, log-in, setup ---------- */
+.door { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; }
+.door .btn + .btn { margin: 10px 0 0; }
+.door-title { font-size: 40px; letter-spacing: -.02em; margin: 24px 0 6px; }
+.door-title span { color: var(--a); }
+.door-sub { font-size: 17px; margin-bottom: 26px; }
+.screen .door .btn { width: 100%; }
+.linkish { border: 0; background: none; padding: 0; font: inherit; color: var(--b); text-decoration: underline; cursor: pointer; }
+.form-error { color: var(--bad); font-size: 14px; margin: 10px 0 0; }
+.basics { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.basics-col { border: 1.5px solid var(--line); border-radius: var(--radius); padding: 14px 16px; min-width: 0; }
+.basics-col h3 { margin: 0; font-size: 17px; }
+.basics-col input[type=range] { width: 100%; accent-color: var(--a); }
+.vibe-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.rb.skip { width: auto; padding: 0 9px; font-size: 12px; color: var(--muted); }
+.rb.skip.on { background: var(--bg); border-color: var(--muted); color: var(--ink); }
+body[data-auth="out"] .steps { visibility: hidden; }

@@ -23,6 +23,9 @@ const state = {
   local: false,                      // true while a Test-mode scenario runs on sample data
   venues: S.onboardingVenues,        // spots shown at onboarding (from the backend in real mode)
   pipeline: null, learned: [], banner: null, error: null,
+  me: null,                          // the logged-in couple (from /api/me); null when signed out
+  auth: { name_a: "", name_b: "", username: "", password: "" }, authError: null,
+  basics: { a: { dietary: [], never: [], vibe: 5 }, b: { dietary: [], never: [], vibe: 5 } },
   metrics: { selected: 0, booked: 0, fails: 0, reviews: 0, returns: 0 },
 };
 const F1 = S.failureScenarios.scenario1, F2 = S.failureScenarios.scenario2;
@@ -99,8 +102,8 @@ const live = () => MODE.real && !state.local;
 async function api(path, body) {
   const res = await fetch(path, body === undefined ? {} : {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  if (!res.ok) throw new Error(`${path} failed (${res.status})`);
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `${path} failed (${res.status})`);
   for (const c of data.ai_calls || []) {         // show each AI call and agent step in the on-screen log
     if (c.kind === "agent_step") {
       const r = c.returned;
@@ -179,6 +182,80 @@ function recommend(plan, mem, exclude) {
 
 // ---------- screens ----------
 const screens = {
+  welcome() {
+    return `
+      <div class="door">
+        <h1 class="door-title">Date <span>Night</span></h1>
+        <p class="sub door-sub">Date nights you'll both love. We learn your tastes, find the place, and book it.</p>
+        <button class="btn" data-act="goSignup">Create your couple account</button>
+        <button class="btn secondary" data-act="goLogin">Log in</button>
+        <p class="hint">Just looking? <button class="linkish" data-act="tryDemo">Try the demo with Maya and Sam</button></p>
+      </div>`;
+  },
+
+  signup() {
+    const a = state.auth;
+    return `
+      <form class="door" data-form="doSignup" novalidate>
+        <span class="step-tag">New couple</span>
+        <h1>Create your couple account</h1>
+        <p class="sub">One login for the two of you. Use it on either phone.</p>
+        <div class="row2">
+          <div><label class="f" for="f-name-a">Your first name</label><input id="f-name-a" data-auth="name_a" autocomplete="given-name" value="${esc(a.name_a)}" placeholder="Jordan"></div>
+          <div><label class="f" for="f-name-b">Your partner's first name</label><input id="f-name-b" data-auth="name_b" value="${esc(a.name_b)}" placeholder="Priya"></div>
+        </div>
+        <label class="f" for="f-user">Couple username</label>
+        <input id="f-user" data-auth="username" autocomplete="username" autocapitalize="none" value="${esc(a.username)}" placeholder="jordan-and-priya">
+        <label class="f" for="f-pass">Shared password</label>
+        <input id="f-pass" type="password" data-auth="password" autocomplete="new-password" value="${esc(a.password)}" placeholder="At least 6 characters">
+        ${state.authError ? `<p class="form-error" role="alert">${esc(state.authError)}</p>` : ""}
+        <div style="height:16px"></div>
+        <button class="btn" type="submit">Create account</button>
+        <p class="hint">Already have an account? <button type="button" class="linkish" data-act="goLogin">Log in</button></p>
+      </form>`;
+  },
+
+  login() {
+    const a = state.auth;
+    return `
+      <form class="door" data-form="doLogin" novalidate>
+        <h1>Welcome back</h1>
+        <p class="sub">Log in with your couple username.</p>
+        <label class="f" for="f-user">Couple username</label>
+        <input id="f-user" data-auth="username" autocomplete="username" autocapitalize="none" value="${esc(a.username)}" placeholder="jordan-and-priya">
+        <label class="f" for="f-pass">Shared password</label>
+        <input id="f-pass" type="password" data-auth="password" autocomplete="current-password" value="${esc(a.password)}">
+        ${state.authError ? `<p class="form-error" role="alert">${esc(state.authError)}</p>` : ""}
+        <div style="height:16px"></div>
+        <button class="btn" type="submit">Log in</button>
+        <p class="hint">New here? <button type="button" class="linkish" data-act="goSignup">Create an account</button> · <button type="button" class="linkish" data-act="tryDemo">Try the demo</button></p>
+      </form>`;
+  },
+
+  basics() {
+    const o = S.planOptions, bs = state.basics;
+    const col = (who, name) => {
+      const b = bs[who];
+      const chips = (key, opts) => `<div class="chips">${opts.map(x =>
+        `<button class="chip ${b[key].includes(x) ? "on" : ""}" data-act="basic" data-who="${who}" data-key="${key}" data-val="${x}">${x}</button>`).join("")}</div>`;
+      return `<div class="basics-col">
+        <h3 class="who ${who}">${esc(name)}</h3>
+        <label class="f">Food needs</label>${chips("dietary", o.dietary)}
+        <label class="f">Never, please</label>${chips("never", o.never)}
+        <label class="f" for="vibe-${who}">Vibe</label>
+        <input type="range" id="vibe-${who}" min="0" max="10" step="1" value="${b.vibe}" data-vibe="${who}">
+        <div class="vibe-scale"><span>Cozy, quiet</span><span>Loud, lively</span></div>
+      </div>`;
+    };
+    return `
+      <span class="step-tag">Setup · 1 of 2</span>
+      <h1>A few basics, side by side</h1>
+      <p class="sub">${esc(A)} and ${esc(B)}, each answer for yourself. Skip anything that doesn't apply.</p>
+      <div class="basics">${col("a", A)}${col("b", B)}</div>
+      <div style="height:18px"></div>
+      <button class="btn" data-act="toRatings">Next: rate some spots</button>`;
+  },
+
   onboarding() {
     const vs = state.venues;
     const done = vs.filter(v => state.ratings[v.id].a && state.ratings[v.id].b).length;
@@ -187,12 +264,13 @@ const screens = {
       return `<div class="rate-btns">
         <button class="rb heart ${who} ${r === "heart" ? "on" : ""}" data-act="rate" data-id="${id}" data-who="${who}" data-val="heart" aria-label="heart">♥</button>
         <button class="rb hate ${r === "hate" ? "on" : ""}" data-act="rate" data-id="${id}" data-who="${who}" data-val="hate" aria-label="hate">✕</button>
+        <button class="rb skip ${r === "skip" ? "on" : ""}" data-act="rate" data-id="${id}" data-who="${who}" data-val="skip">Not been</button>
       </div>`;
     };
     return `
-      <span class="step-tag">Step 1 · Onboarding · first time only</span>
+      <span class="step-tag">${live() ? "Setup · 2 of 2" : "Step 1 · Onboarding · first time only"}</span>
       <h1>Rate spots you know</h1>
-      <p class="sub">${A} and ${B}, each tap ♥ or ✕ on places you've been. This is our starting point.</p>
+      <p class="sub">${A} and ${B}, each tap ♥ or ✕ for places you've been, or "Not been" if you haven't. This is our starting point.</p>
       <div class="progress"><div style="width:${(100 * done) / vs.length}%"></div></div>
       <div class="venues">${vs.map(v => `
         <div class="venue-row ${state.ratings[v.id].a && state.ratings[v.id].b ? "done" : ""}">
@@ -202,7 +280,7 @@ const screens = {
           <div class="rate-line"><span class="who b">${B}</span>${rateBtns(v.id, "b")}</div>
         </div>`).join("")}</div>
       <button class="btn" data-act="finishOnboarding" ${done < vs.length ? "disabled" : ""}>Continue</button>
-      <p class="hint">${done} of ${vs.length} rated by both</p>`;
+      <p class="hint">${done} of ${vs.length} answered by both</p>`;
   },
 
   plan() {
@@ -382,6 +460,7 @@ const screens = {
         ${items.length ? `<ul>${items.join("")}</ul>` : `<p class="meta">Nothing yet.</p>`}</div>`;
     });
     return `
+      ${banner()}
       <span class="step-tag">Your profile</span>
       <h1>What we know about ${esc(A)} &amp; ${esc(B)}</h1>
       <p class="sub">Built from your ratings and every date you review. The brackets show the evidence.</p>
@@ -444,6 +523,35 @@ async function whileLoading(steps, title, promise) {
   finally { done = true; clearInterval(timer); while (i < steps.length) tick(); await sleep(250); }
 }
 
+// Where a couple lands after signing up, logging in, or opening the demo.
+function applyMe(me, banner) {
+  state.me = me; state.authError = null; state.local = false;
+  [A, B] = me.partners;
+  state.plan = { date: "", time: "", location: "", budgets: [], vibes: [], vegetarian: !!me.vegetarian };
+  state.basics = { a: { dietary: [], never: [], vibe: 5 }, b: { dietary: [], never: [], vibe: 5 } };
+  state.selected = null; state.booking = null; state.pipeline = null; state.learned = []; state.error = null;
+  lastScreen = null;
+  if (!me.onboarded) { state.banner = null; return go("basics"); }
+  const due = me.pending_review;
+  if (due) {
+    state.selected = { id: due.place_id, name: due.name, kind: due.kind };
+    state.booking = { serverId: due.booking_id, when: due.when };
+    state.review = { a: null, b: null, reasonA: null, reasonB: null };
+    state.banner = null;
+    return go("review");
+  }
+  state.banner = banner || { title: `Welcome back, ${A} & ${B}`, lines: ["Plan your next date below."] };
+  go("plan");
+}
+
+async function signOut() {
+  try { await api("/api/logout", {}); } catch (e) {}
+  state.me = null; state.banner = null; state.auth = { name_a: "", name_b: "", username: "", password: "" };
+  [A, B] = [S.couple.a, S.couple.b];
+  log("logged_out", {});
+  go("welcome");
+}
+
 function cravingOf(p) {
   return [...(p.cravings || []), (p.cravingText || "").trim()].filter(Boolean).join(", ");
 }
@@ -455,9 +563,12 @@ function planReady() {
 
 function render() {
   const who = document.getElementById("couple");   // "Signed in as" always shows the current couple
-  if (who) who.innerHTML = live()
-    ? `<button type="button" class="couple-link" data-profile>Planning for <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b> <span aria-hidden="true">›</span></button>`
-    : `Planning for <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b>`;
+  if (who) who.innerHTML = !MODE.real
+    ? `Planning for <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b>`
+    : !state.me ? ""
+    : `<button type="button" class="couple-link" data-profile>Planning for <b class="a">${esc(A)}</b> &amp; <b class="b">${esc(B)}</b> <span aria-hidden="true">›</span></button>
+       <button type="button" class="couple-link" data-signout>Sign out</button>`;
+  document.body.dataset.auth = !MODE.real || state.me ? "in" : "out";
   // Redraws happen on every click (a rating, a chip). Only jump to the top when the screen itself changes,
   // so the page stays where the user is while they fill something in.
   const newScreen = state.screen !== lastScreen;
@@ -515,6 +626,43 @@ async function showRecommendations(reason) {
 
 // ---------- actions ----------
 const actions = {
+  goSignup() { state.authError = null; go("signup"); },
+  goLogin() { state.authError = null; go("login"); },
+  async tryDemo() {
+    try {
+      const res = await api("/api/demo", {});
+      applyMe(res.me, { title: "Welcome to the demo, Maya & Sam", lines: ["Five past dates and a written profile. Plan a date to see the memory at work."] });
+      log("demo_opened", {}, "alert");
+    } catch (e) { state.authError = e.message; render(); }
+  },
+  async doSignup() {
+    const a = state.auth;
+    try {
+      const res = await api("/api/signup", { username: a.username, password: a.password, name_a: a.name_a, name_b: a.name_b });
+      state.auth = { name_a: "", name_b: "", username: "", password: "" };
+      log("account_created", { username: res.username });
+      applyMe(res);
+    } catch (e) { state.authError = e.message; render(); }
+  },
+  async doLogin() {
+    const a = state.auth;
+    try {
+      const res = await api("/api/login", { username: a.username, password: a.password });
+      state.auth = { name_a: "", name_b: "", username: "", password: "" };
+      log("logged_in", { username: res.username });
+      applyMe(res);
+    } catch (e) { state.authError = e.message; state.auth.password = ""; render(); }
+  },
+  basic(d) {
+    const arr = state.basics[d.who][d.key], i = arr.indexOf(d.val);
+    i >= 0 ? arr.splice(i, 1) : arr.push(d.val);
+    render();
+  },
+  toRatings() {
+    state.ratings = Object.fromEntries(state.venues.map(v => [v.id, { a: null, b: null }]));
+    log("basics_done", state.basics);
+    go("onboarding");
+  },
   rate(d) {
     const r = state.ratings[d.id];
     r[d.who] = r[d.who] === d.val ? null : d.val;
@@ -528,12 +676,16 @@ const actions = {
       return go("plan");
     }
     try {
-      const res = await whileLoading(["Saving your ratings", "Writing your first profile"],
-        "Building what we know about you two.", api("/api/onboard", { ratings: state.ratings, partners: [A, B] }));
-      state.banner = { title: "🧠 What we know so far", lines: res.learned };
+      const res = await whileLoading(["Saving your answers", "Writing your first profile"],
+        "Building what we know about you two.", api("/api/onboard", { ratings: state.ratings, basics: state.basics }));
       log("memory_initialized", { learned: res.learned, profile: res.profile, error: res.error }, "ai");
+      if (state.me) state.me.onboarded = true;
+      state.plan.vegetarian = ["a", "b"].some(w => state.basics[w].dietary.some(d => d === "Vegetarian" || d === "Vegan"));
+      state.profileMd = res.profile; state.profileEditing = false;
+      state.banner = { title: "You're all set. Here's what we learned.", lines: res.learned };
+      return go("profile");
     } catch (e) {
-      state.banner = { title: "Couldn't save onboarding", lines: [String(e.message || e)] };
+      state.banner = { title: "Couldn't save your setup", lines: [String(e.message || e)] };
     }
     go("plan");
   },
@@ -563,7 +715,8 @@ const actions = {
     showRecommendations(state.note ? `Looking again, keeping in mind: "${state.note}"` : "Looking again.");
   },
   goPlan() {
-    state.plan = { date: "", time: "", location: "", budgets: [], vibes: [], vegetarian: false };
+    state.plan = { date: "", time: "", location: "", budgets: [], vibes: [], vegetarian: !!(state.me && state.me.vegetarian) };
+    state.banner = null;
     state.review = { a: null, b: null, reasonA: null, reasonB: null }; state.showExternal = false;
     state.learned = []; state.error = null;
     go("plan");
@@ -768,9 +921,9 @@ async function startScenario(id) {
     state.review = { a: null, b: null, reasonA: null, reasonB: null };
     if (id === "demo") {
       const res = await api("/api/demo", {});
-      [A, B] = res.partners;
-      state.banner = { title: `Loaded the demo couple, ${A} & ${B}`, lines: ["Five past dates and a written profile. Plan a date to see the memory at work."] };
       log("demo_couple_loaded", { partners: res.partners, profile: res.profile }, "alert");
+      renderTestPanel();
+      return applyMe(res.me, { title: `Loaded the demo couple, ${res.partners[0]} & ${res.partners[1]}`, lines: ["Five past dates and a written profile. Plan a date to see the memory at work."] });
     }
   } else {
     seedEarlierSteps();
@@ -783,6 +936,7 @@ async function startScenario(id) {
   }, "alert");
   renderTestPanel();
   lastScreen = null;          // a scenario is a fresh start: always open it at the top
+  if (id === "happy" && MODE.real) return go(state.me ? "basics" : "welcome");
   go(sc.screen);
 }
 
@@ -792,6 +946,7 @@ testEl.addEventListener("click", e => {
 });
 
 document.getElementById("couple").addEventListener("click", async e => {
+  if (e.target.closest("[data-signout]")) return signOut();
   if (!e.target.closest("[data-profile]") || !live()) return;
   try {
     const res = await api("/api/profile");
@@ -806,6 +961,16 @@ screenEl.addEventListener("click", e => {
   if (!btn || btn.disabled) return;
   actions[btn.dataset.act](btn.dataset, btn);
 });
+screenEl.addEventListener("input", e => {
+  if (e.target.dataset.auth) state.auth[e.target.dataset.auth] = e.target.value;
+  if (e.target.dataset.vibe) state.basics[e.target.dataset.vibe].vibe = Number(e.target.value);
+});
+screenEl.addEventListener("submit", e => {
+  e.preventDefault();
+  const form = e.target.closest("[data-form]");
+  if (form) actions[form.dataset.form]();
+});
+
 screenEl.addEventListener("change", e => {
   const f = e.target.dataset.field;
   if (!f) return;
@@ -817,18 +982,16 @@ screenEl.addEventListener("change", e => {
 async function init() {
   if (location.protocol.startsWith("http")) {
     try {
-      const st = await api("/api/status");
+      // Ask for everything at once so the first screen appears sooner.
+      const [st, seedRes, me] = await Promise.all([api("/api/status"), api("/api/seeds"), api("/api/me")]);
       MODE.status = st;
       MODE.real = st.use_real_ai;
       if (MODE.real) {
-        const { seeds } = await api("/api/seeds");
+        const { seeds } = seedRes;
         state.venues = seeds.map(v => ({ ...v, emoji: emojiFor(v.type) }));
         state.ratings = Object.fromEntries(state.venues.map(v => [v.id, { a: null, b: null }]));
-        if (st.couple) {                 // a couple is already set up: start at Plan
-          [A, B] = st.partners;
-          state.banner = { title: `Welcome back, ${A} & ${B}`, lines: ["Plan your next date below."] };
-          state.screen = "plan";
-        }
+        if (me.logged_in) { MODE.status.model = st.model; applyMe(me); }
+        else state.screen = "welcome";
       }
     } catch (e) { MODE.real = false; }  // no backend: run the simulated prototype
   }

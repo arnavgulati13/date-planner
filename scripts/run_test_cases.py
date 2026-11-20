@@ -60,6 +60,11 @@ class Runner:
     def note(self, case, title, body):
         self.notes.append((case, title, body))
 
+    def demo(self):
+        """Open the demo couple the way a visitor would ('Try the demo'), and read its files directly."""
+        self.post("/api/demo")
+        self.store.use_couple("maya-and-sam")
+
     def recommend(self, **plan):
         t = time.monotonic()
         res = self.post("/api/recommend", {"note": "", "exclude": [], "vegetarian": False, **plan})
@@ -78,7 +83,7 @@ class Runner:
     # --- the cases
     def case1(self):
         print("\nCase 1 · Typical: demo couple, Sat 7:30 PM, Wicker Park, $$, cozy, vegetarian")
-        self.post("/api/demo")
+        self.demo()
         res = self.recommend(date=next_weekday(5).isoformat(), time="7:30 PM", location="Wicker Park",
                              budgets=["$$"], vibes=["cozy"], vegetarian=True)
         picks = res["picks"]
@@ -113,7 +118,12 @@ class Runner:
                 ratings[sid] = {"a": "hate", "b": "hate"}
             else:   # Maya-only picks, and everything else: Maya likes it, Sam doesn't
                 ratings[sid] = {"a": "heart", "b": "hate"}
-        res = self.post("/api/onboard", {"ratings": ratings, "partners": ["Maya", "Sam"]})
+        username = f"test-{int(time.time())}"
+        self.post("/api/signup", {"username": username, "password": "test-pass", "name_a": "Maya", "name_b": "Sam"})
+        self.store.use_couple(username)
+        res = self.post("/api/onboard", {"ratings": ratings, "basics": {
+            "a": {"dietary": [], "never": ["Chain restaurants"], "vibe": 6},
+            "b": {"dietary": ["Vegetarian"], "never": ["Loud rooms"], "vibe": 3}}})
         prof = res["profile"]
         shared, differ = section(prof, "Shared loves"), section(prof, "Where they differ")
         self.check(2, "Claude wrote the profile (not the fallback)", not res.get("error"), res.get("error") or "")
@@ -130,7 +140,7 @@ class Runner:
 
     def case3(self):
         print("\nCase 3 · Edge: demo couple, Sun 9 PM, River North, $ only, adventurous, vegetarian + messy note")
-        self.post("/api/demo")
+        self.demo()
         plan = dict(date=next_weekday(6).isoformat(), time="9:00 PM", location="River North",
                     budgets=["$"], vibes=["adventurous"], vegetarian=True)
         r1 = self.recommend(**plan)
@@ -150,7 +160,7 @@ class Runner:
 
     def case4(self):
         print("\nCase 4 · Failure (Lab 7 #1): split verdict, then a skipped review")
-        self.post("/api/demo")
+        self.demo()
         sat = next_weekday(5)
         res = self.recommend(date=sat.isoformat(), time="8:00 PM", location="West Loop",
                              budgets=["$$", "$$$"], vibes=["lively"])
