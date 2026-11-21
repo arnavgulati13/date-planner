@@ -54,19 +54,60 @@ function shiftTime(t, mins) {
 
 // ---------- real bookings: hand-off links ----------
 function to24h(t) { return to24(t).slice(0, 5); }     // "7:30 PM" -> "19:30"
-function bookingLinks(r, plan, party = 2) {
-  // Search by the venue's core name: "avec Restaurant" -> "avec", "Kama - Wicker Park" -> "Kama"
-  const core = r.name.split(/\s[-|]\s/)[0].replace(/\s+(restaurant|chicago|bar & grill)$/i, "").trim();
-  const q = encodeURIComponent(core || r.name);
-  const links = [
-    { platform: "OpenTable", fills: "date, time and party size",
-      url: `https://www.opentable.com/s?term=${q}&covers=${party}&dateTime=${plan.date}T${encodeURIComponent(to24h(r.openSlot))}&metroId=3` },
-    { platform: "Resy", fills: "date and party size",
-      url: `https://resy.com/cities/chicago-il/search?query=${q}&date=${plan.date}&seats=${party}` },
-  ];
-  if (r.mapsUrl) links.push({ platform: "Google", fills: r.reservable ? "lists this place as taking reservations" : "opens the place in Maps",
-                               url: r.mapsUrl });
-  return links;
+function withParams(url, params) {
+  const u = new URL(url);
+  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+  return u.toString();
+}
+
+// The venue's own booking page (found on its website by the server), with the details filled in.
+// Each platform names the date, time and party size differently; all of these were checked live.
+function directLink(b, plan, time, party) {
+  const date = plan.date, t = to24h(time);
+  switch (b.platform) {
+    case "OpenTable": return { fills: "date, time and party size", url: withParams(b.url, { covers: party, dateTime: `${date}T${t}` }) };
+    case "Resy": return { fills: "date and party size, then shows the open times", url: withParams(b.url, { date, seats: party }) };
+    case "SevenRooms": return { fills: "date, time and party size",
+      url: withParams(b.url, { default_date: date, default_party_size: party, default_time: t }) };
+    case "Tock": return { fills: "date, time and party size", url: withParams(b.url.replace(/\/$/, "") + "/search", { date, size: party, time: t }) };
+  }
+  return { fills: "opens their booking page", url: b.url };
+}
+
+// How this venue takes bookings: what the pick card says, and what the reserve screen offers.
+// Only ways that actually work for this venue; no blind searches on platforms it isn't on.
+function bookingPlan(r, plan, time, party) {
+  const b = r.booking;
+  if (!b) return { status: "checking", label: "Checking how to book…", links: [] };
+  const phone = b.phone ? { platform: "Phone", title: `Call ${b.phone}`, fills: "the restaurant takes it from there",
+                            url: "tel:" + b.phone.replace(/[^\d+]/g, "") } : null;
+  const site = b.website ? { platform: "Website", title: "Their website", fills: "for anything not listed here", url: b.website } : null;
+  if (b.platform)
+    return { status: "online", platform: b.platform, label: `Books on ${b.platform}`,
+             links: [{ platform: b.platform, title: `Book on ${b.platform}`, ...directLink(b, plan, time, party) }, phone].filter(Boolean) };
+  if (b.reservable && r.mapsUrl)
+    return { status: "google", platform: "Google", label: "Reserve through Google",
+             links: [{ platform: "Google", title: "Reserve on Google", fills: "Google lists it as taking reservations", url: r.mapsUrl }, phone].filter(Boolean) };
+  if (b.reservable === false)
+    return { status: "walkin", platform: "Walk-in", label: "Walk-in only", links: [phone].filter(Boolean) };
+  return { status: "call", platform: "Phone", label: phone ? "Call to book" : "No online booking found", links: [phone, site].filter(Boolean) };
+}
+
+function viaText(r) {
+  const bp = bookingPlan(r, state.plan, r.openSlot, 2);
+  return { checking: "Checking…", online: `You, on ${bp.platform}`, google: "You, through Google",
+           walkin: "No booking needed: walk in", call: "You, by phone" }[bp.status];
+}
+
+async function loadBooking(recs) {
+  // Runs after the picks are on screen, so it never slows them down.
+  try {
+    const res = await api("/api/booking", { ids: recs.map(r => r.id) });
+    for (const r of recs) r.booking = res.booking[r.id] || { platform: null, reservable: r.reservable };
+  } catch (e) {
+    for (const r of recs) r.booking = { platform: null, reservable: r.reservable };
+  }
+  if (["results", "confirm", "reserve"].includes(state.screen)) render();
 }
 
 function icsFor(c, plan) {
@@ -363,7 +404,8 @@ const screens = {
           ${r.headline ? `<p class="headline">${esc(r.headline)}</p>` : ""}
           <p class="why">${esc(r.why)}</p>
           ${r.showFlag ? `<div class="flag">⚠ ${esc(r.flag)}</div>` : ""}
-          <div class="pills"><span class="pill slot">${r.openSlot} open</span>${r.percent != null ? `<span class="pill">~${r.percent}% you'd both go back</span>` : ""}</div>
+          <div class="pills"><span class="pill slot">${r.openSlot} open</span>${r.percent != null ? `<span class="pill">~${r.percent}% you'd both go back</span>` : ""}${
+            live() ? `<span class="pill book ${bookingPlan(r, p, r.openSlot, 2).status}">${esc(bookingPlan(r, p, r.openSlot, 2).label)}</span>` : ""}</div>
           <button class="btn ${i ? "secondary" : ""}" data-act="select" data-i="${i}">Choose ${esc(r.name)}</button>
         </div>`).join("") + `</div>` : `<div class="flag">${esc(S.noMoreMessage)}</div>`}
       <div class="more-box">
@@ -384,7 +426,7 @@ const screens = {
       <div class="summary">
         <div class="line"><span class="k" style="font-weight:700;color:var(--ink)">You're approving exactly:</span><span class="v"></span></div>
         ${TERM_FIELDS.map(([k, label]) => `<div class="line"><span class="k">${label}</span><span class="v">${esc(t[k])}</span></div>`).join("")}
-        <div class="line"><span class="k">Via</span><span class="v">${live() ? "You, on OpenTable, Resy or Google" : esc(S.booking.platform)}</span></div>
+        <div class="line"><span class="k">Via</span><span class="v">${live() ? esc(viaText(r)) : esc(S.booking.platform)}</span></div>
       </div>
       <p class="hint" style="margin:-6px 0 14px">${live() ? "If you get a different time or party size, we'll flag it when you tell us what you booked." : "If any of these change, we'll stop and ask you again before booking."}</p>
       <button class="btn" data-act="allow">Allow</button>
@@ -393,21 +435,30 @@ const screens = {
 
   reserve() {
     const r = state.selected, t = state.approved;
-    const links = bookingLinks(r, state.plan, t.partySize);
+    const bp = bookingPlan(r, state.plan, t.time, t.partySize);
+    const n = esc(r.name);
+    const intro = {
+      checking: `Checking where ${n} takes bookings…`,
+      online: `${n} takes bookings on ${bp.platform}. This opens their page with your details filled in.`,
+      google: `Google lists ${n} as taking reservations. We couldn't find their own booking page, so book through Google${bp.links.length > 1 ? " or call" : ""}.`,
+      walkin: `Google lists ${n} as not taking reservations, so there's nothing to book: just show up.${bp.links.length ? " Calling ahead can't hurt." : ""}`,
+      call: `We couldn't find online booking for ${n}.${bp.links.length ? " Call them, or check their website." : ""}`,
+    }[bp.status];
+    const walkin = bp.status === "walkin";
     return `
       <span class="step-tag">Step 4 · Book it</span>
-      <h1>Reserve ${esc(r.name)}</h1>
-      <p class="sub">${esc(t.date)} · ${esc(t.time)} · party of ${t.partySize}. Pick where to book; each opens in a new tab with your details filled in.</p>
-      <div class="handoff">${links.map(l => `
-        <a class="handoff-link" href="${esc(l.url)}" target="_blank" rel="noopener" data-handoff="${l.platform}">
-          <b>${l.platform === "Google" && r.reservable ? "Reserve on Google" : (l.platform === "Google" ? "Open in Google Maps" : "Book on " + l.platform)} ↗</b>
+      <h1>${walkin ? "Walk in at" : "Reserve"} ${n}</h1>
+      <p class="sub">${esc(t.date)} · ${esc(t.time)} · party of ${t.partySize}. ${intro}</p>
+      <div class="handoff">${bp.links.map(l => `
+        <a class="handoff-link" href="${esc(l.url)}" ${l.platform === "Phone" ? "" : `target="_blank" rel="noopener"`} data-handoff="${l.platform}">
+          <b>${esc(l.title)}${l.platform === "Phone" ? "" : " ↗"}</b>
           <span>${esc(l.fills)}</span></a>`).join("")}</div>
-      <p class="hint" style="text-align:left">Not on any of these? Call the restaurant, then come back and tell us what you got.</p>
+      ${bp.status === "online" ? `<p class="hint" style="text-align:left">We can see where they take bookings, not whether ${esc(t.time)} is still free. ${bp.platform} shows that.</p>` : ""}
       <div class="summary" style="margin-top:18px">
-        <div class="line"><span class="k" style="font-weight:700;color:var(--ink)">Done booking?</span><span class="v"></span></div>
+        <div class="line"><span class="k" style="font-weight:700;color:var(--ink)">${walkin ? "Going for it?" : "Done booking?"}</span><span class="v"></span></div>
       </div>
-      <button class="btn" data-act="gotIt">Yes, it's booked</button>
-      <button class="btn secondary" data-act="couldntBook">Couldn't get it</button>`;
+      <button class="btn" data-act="gotIt" ${bp.status === "checking" ? "disabled" : ""}>${walkin ? "Yes, we'll walk in" : "Yes, it's booked"}</button>
+      <button class="btn secondary" data-act="couldntBook">${walkin ? "Pick somewhere else" : "Couldn't get it"}</button>`;
   },
 
   gotIt() {
@@ -420,7 +471,7 @@ const screens = {
         <p class="sub">We'll check it against what you approved. Change anything that came out different.</p>
         <div class="row2">
           <div><label class="f" for="got-platform">Booked on</label>
-            <select id="got-platform" data-got="platform">${["OpenTable", "Resy", "Google", "Phone", "Other"].map(p =>
+            <select id="got-platform" data-got="platform">${["OpenTable", "Resy", "SevenRooms", "Tock", "Google", "Phone", "Walk-in", "Other"].map(p =>
               `<option ${g.platform === p ? "selected" : ""}>${p}</option>`).join("")}</select></div>
           <div><label class="f" for="got-time">Time</label>
             <select id="got-time" data-got="time">${times.map(x => `<option ${g.time === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
@@ -720,6 +771,7 @@ async function showRecommendations(reason) {
     picks: state.current.map(r => ({ id: r.id, name: r.name, percent: r.percent, slot: r.openSlot })),
   }, "ai");
   go("results");
+  if (live()) loadBooking(state.current);
 }
 
 // ---------- actions ----------
@@ -828,7 +880,8 @@ const actions = {
     state.approved = makeTerms(r);
     log("booking_approved", { approvedTerms: state.approved });
     if (live()) {
-      state.got = { platform: "OpenTable", time: state.approved.time, partySize: state.approved.partySize,
+      const bp = bookingPlan(r, state.plan, state.approved.time, state.approved.partySize);
+      state.got = { platform: bp.platform || "OpenTable", time: state.approved.time, partySize: state.approved.partySize,
                     deposit: state.approved.deposit, confirmation: "" };
       return go("reserve");
     }

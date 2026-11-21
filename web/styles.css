@@ -234,3 +234,8 @@ a.brand:focus-visible { outline: 2px solid var(--b); outline-offset: 3px; }
 .handoff-link:hover { border-color: var(--a); background: var(--a-soft); }
 .handoff-link:focus-visible { outline: 2px solid var(--b); outline-offset: 2px; }
 .handoff-link span { color: var(--muted); font-size: 13px; }
+
+/* How a pick takes bookings, on the pick card */
+.pill.book { background: var(--a-soft); color: var(--a); }
+.pill.book.checking { background: transparent; color: var(--muted); border: 1px dashed var(--line); }
+.pill.book.walkin, .pill.book.call { background: var(--bg, #f4f1ec); color: var(--ink); border: 1px solid var(--line); }
