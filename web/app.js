@@ -52,6 +52,34 @@ function shiftTime(t, mins) {
   return `${((H + 11) % 12) + 1}:${String(M).padStart(2, "0")} ${H >= 12 ? "PM" : "AM"}`;
 }
 
+// ---------- real bookings: hand-off links ----------
+function to24h(t) { return to24(t).slice(0, 5); }     // "7:30 PM" -> "19:30"
+function bookingLinks(r, plan, party = 2) {
+  // Search by the venue's core name: "avec Restaurant" -> "avec", "Kama - Wicker Park" -> "Kama"
+  const core = r.name.split(/\s[-|]\s/)[0].replace(/\s+(restaurant|chicago|bar & grill)$/i, "").trim();
+  const q = encodeURIComponent(core || r.name);
+  const links = [
+    { platform: "OpenTable", fills: "date, time and party size",
+      url: `https://www.opentable.com/s?term=${q}&covers=${party}&dateTime=${plan.date}T${encodeURIComponent(to24h(r.openSlot))}&metroId=3` },
+    { platform: "Resy", fills: "date and party size",
+      url: `https://resy.com/cities/chicago-il/search?query=${q}&date=${plan.date}&seats=${party}` },
+  ];
+  if (r.mapsUrl) links.push({ platform: "Google", fills: r.reservable ? "lists this place as taking reservations" : "opens the place in Maps",
+                               url: r.mapsUrl });
+  return links;
+}
+
+function icsFor(c, plan) {
+  const [h, m] = to24h(c.time).split(":").map(Number);
+  const [y, mo, d] = plan.date.split("-").map(Number);
+  const stamp = dt => dt.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const start = new Date(y, mo - 1, d, h, m), end = new Date(start.getTime() + 2 * 3600 * 1000);
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Date Night//EN", "BEGIN:VEVENT",
+    `UID:${Date.now()}@date-night`, `DTSTAMP:${stamp(new Date())}`, `DTSTART:${stamp(start)}`, `DTEND:${stamp(end)}`,
+    `SUMMARY:Date night: ${c.venue}`, `DESCRIPTION:Party of ${c.partySize}${c.platformNote ? " · " + c.platformNote : ""}`,
+    "END:VEVENT", "END:VCALENDAR", ""].join("\r\n");
+}
+
 // ---------- booking terms & verification ----------
 const makeTerms = r => ({ venue: r.name, date: fmtDate(state.plan.date), time: r.openSlot, partySize: 2, deposit: S.booking.deposit });
 const diffFields = (x, y) => TERM_FIELDS.map(([k]) => k).filter(k => String(x[k]) !== String(y[k]));
@@ -352,15 +380,71 @@ const screens = {
     return `
       <span class="step-tag">Step 4 · Confirmation</span>
       <h1>Book ${esc(r.name)}?</h1>
-      <p class="sub">${esc(fill(S.booking.confirmPrompt, { venue: r.name }))}</p>
+      <p class="sub">${live() ? "Check the details. Next we open the booking page with them filled in, and you book with one tap." : esc(fill(S.booking.confirmPrompt, { venue: r.name }))}</p>
       <div class="summary">
         <div class="line"><span class="k" style="font-weight:700;color:var(--ink)">You're approving exactly:</span><span class="v"></span></div>
         ${TERM_FIELDS.map(([k, label]) => `<div class="line"><span class="k">${label}</span><span class="v">${esc(t[k])}</span></div>`).join("")}
-        <div class="line"><span class="k">Via</span><span class="v">${esc(S.booking.platform)}</span></div>
+        <div class="line"><span class="k">Via</span><span class="v">${live() ? "You, on OpenTable, Resy or Google" : esc(S.booking.platform)}</span></div>
       </div>
-      <p class="hint" style="margin:-6px 0 14px">If any of these change, we'll stop and ask you again before booking.</p>
+      <p class="hint" style="margin:-6px 0 14px">${live() ? "If you get a different time or party size, we'll flag it when you tell us what you booked." : "If any of these change, we'll stop and ask you again before booking."}</p>
       <button class="btn" data-act="allow">Allow</button>
       <button class="btn secondary" data-act="deny">Deny</button>`;
+  },
+
+  reserve() {
+    const r = state.selected, t = state.approved;
+    const links = bookingLinks(r, state.plan, t.partySize);
+    return `
+      <span class="step-tag">Step 4 · Book it</span>
+      <h1>Reserve ${esc(r.name)}</h1>
+      <p class="sub">${esc(t.date)} · ${esc(t.time)} · party of ${t.partySize}. Pick where to book; each opens in a new tab with your details filled in.</p>
+      <div class="handoff">${links.map(l => `
+        <a class="handoff-link" href="${esc(l.url)}" target="_blank" rel="noopener" data-handoff="${l.platform}">
+          <b>${l.platform === "Google" && r.reservable ? "Reserve on Google" : (l.platform === "Google" ? "Open in Google Maps" : "Book on " + l.platform)} ↗</b>
+          <span>${esc(l.fills)}</span></a>`).join("")}</div>
+      <p class="hint" style="text-align:left">Not on any of these? Call the restaurant, then come back and tell us what you got.</p>
+      <div class="summary" style="margin-top:18px">
+        <div class="line"><span class="k" style="font-weight:700;color:var(--ink)">Done booking?</span><span class="v"></span></div>
+      </div>
+      <button class="btn" data-act="gotIt">Yes, it's booked</button>
+      <button class="btn secondary" data-act="couldntBook">Couldn't get it</button>`;
+  },
+
+  gotIt() {
+    const t = state.approved, g = state.got;
+    const times = S.planOptions.times.includes(t.time) ? S.planOptions.times : [t.time, ...S.planOptions.times];
+    return `
+      <form data-form="saveRealBooking" novalidate>
+        <span class="step-tag">Step 4 · Book it</span>
+        <h1>What did you book?</h1>
+        <p class="sub">We'll check it against what you approved. Change anything that came out different.</p>
+        <div class="row2">
+          <div><label class="f" for="got-platform">Booked on</label>
+            <select id="got-platform" data-got="platform">${["OpenTable", "Resy", "Google", "Phone", "Other"].map(p =>
+              `<option ${g.platform === p ? "selected" : ""}>${p}</option>`).join("")}</select></div>
+          <div><label class="f" for="got-time">Time</label>
+            <select id="got-time" data-got="time">${times.map(x => `<option ${g.time === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+        </div>
+        <div class="row2">
+          <div><label class="f" for="got-party">Party size</label><input id="got-party" type="number" min="1" max="12" data-got="partySize" value="${g.partySize}"></div>
+          <div><label class="f" for="got-deposit">Deposit</label><input id="got-deposit" data-got="deposit" value="${esc(g.deposit)}"></div>
+        </div>
+        <label class="f" for="got-conf">Confirmation number <span style="text-transform:none;font-weight:500">(optional)</span></label>
+        <input id="got-conf" data-got="confirmation" value="${esc(g.confirmation)}" placeholder="From the booking email or app">
+        <div style="height:16px"></div>
+        <button class="btn" type="submit">Save booking</button>
+        <button class="btn secondary" type="button" data-act="backToReserve">Back</button>
+      </form>`;
+  },
+
+  couldnt() {
+    return `
+      <span class="step-tag">Step 4 · Book it</span>
+      <div class="warn-box">Nothing was booked at ${esc(state.selected.name)}.</div>
+      <h1>What would you like to do?</h1>
+      <p class="sub">Picks fill up. Try another of tonight's options, or start a new plan with a different time.</p>
+      <button class="btn" data-act="backToPicks">Back to the other picks</button>
+      <button class="btn secondary" data-act="goPlan">Change the plan</button>`;
   },
 
   booking() {
@@ -393,16 +477,19 @@ const screens = {
     return `
       <div class="big-icon">${bad ? "⚠️" : "🎉"}</div>
       <h1 class="center">${bad ? "Booked — but check this" : "You're booked!"}</h1>
-      <p class="sub center">${esc(bad ? F2.mismatchWarning : S.booking.successMessage)}</p>
+      <p class="sub center">${esc(bad ? (b.real ? "What you booked differs from what you approved. Check the highlighted rows before you go." : F2.mismatchWarning) : (b.real ? "Checked against what you approved." : S.booking.successMessage))}</p>
       <div class="summary">
         <div class="line"><span class="k">${esc(c.venue)}</span><span class="v">${esc(c.date)}</span></div>
-        <div class="line"><span class="k">${esc(c.time)} · party of ${c.partySize}</span><span class="v">#${b.id}</span></div>
+        <div class="line"><span class="k">${esc(c.time)} · party of ${c.partySize}</span><span class="v">${b.real ? esc(b.platform) : "#" + b.id}</span></div>
       </div>
       <label class="f" style="margin-top:0">Booking check</label>
       ${termsTable(b.approved, c, "Approved", "Confirmed", { markBad: true })}
       <div style="height:14px"></div>
-      <button class="btn secondary" data-act="toggleExternal">${state.showExternal ? "Hide" : "View"} booking confirmation ↗</button>
-      ${state.showExternal ? `
+      ${b.real ? `
+      <p class="hint" style="text-align:left">Booked by you on ${esc(b.platform)}${b.confirmation ? " · confirmation " + esc(b.confirmation) : ""}.</p>
+      <button class="btn secondary" data-act="addToCalendar">Add to calendar</button>` : `
+      <button class="btn secondary" data-act="toggleExternal">${state.showExternal ? "Hide" : "View"} booking confirmation ↗</button>`}
+      ${!b.real && state.showExternal ? `
         <div class="ext"><div class="bar">${esc(S.booking.platform)} — Reservation confirmed</div>
           <div class="body"><b>${esc(c.venue)}</b><br>${esc(c.date)} at ${esc(c.time)}<br>Party of ${c.partySize} · Deposit: ${esc(c.deposit)} · Confirmation #${b.id}<br>
           <span class="meta">Simulated external page. No real reservation was made.</span></div></div>` : ""}
@@ -619,6 +706,7 @@ async function showRecommendations(reason) {
         id: p.id, name: p.name, type: p.type, price: p.price, rating: p.rating ?? "?", distance: (p.miles != null ? p.miles + " mi · " : "") + p.address,
         headline: p.headline, why: p.why, percent: p.return_chance, openSlot: state.plan.time,
         showFlag: !!p.heads_up, flag: p.heads_up, badge: p.kind === "wildcard" ? "wild" : "best", kind: p.kind,
+        mapsUrl: p.maps_url, reservable: p.reservable,
       }));
     } catch (e) {
       state.banner = { title: "Couldn't reach the backend", lines: [String(e.message || e)] };
@@ -739,6 +827,11 @@ const actions = {
     const r = state.selected;
     state.approved = makeTerms(r);
     log("booking_approved", { approvedTerms: state.approved });
+    if (live()) {
+      state.got = { platform: "OpenTable", time: state.approved.time, partySize: state.approved.partySize,
+                    deposit: state.approved.deposit, confirmation: "" };
+      return go("reserve");
+    }
     if (state.test.slotGone) {
       // Scenario 2: the agent re-checks the approved slot before booking, finds it gone, and STOPS.
       state.screen = "booking";
@@ -753,6 +846,44 @@ const actions = {
       return;
     }
     await bookAndVerify(state.approved, S.booking.agentSteps);
+  },
+  gotIt() { go("gotIt"); },
+  backToReserve() { go("reserve"); },
+  couldntBook() {
+    state.metrics.fails++;
+    log("real_booking_failed", { venue: state.selected.id, approvedTerms: state.approved }, "alert");
+    go("couldnt");
+  },
+  async saveRealBooking() {
+    const t = state.approved, g = state.got;
+    const confirmed = { ...t, time: g.time, partySize: Number(g.partySize) || t.partySize, deposit: g.deposit || t.deposit,
+                        platformNote: g.platform };
+    const mismatches = diffFields(t, confirmed);
+    state.booking = { id: g.confirmation || "", real: true, platform: g.platform, confirmation: g.confirmation,
+                      approved: t, confirmed, mismatches };
+    state.showExternal = false;
+    state.metrics.booked++;
+    log("real_booking_saved", { venue: state.selected.id, platform: g.platform, confirmation: g.confirmation || null,
+                                approvedTerms: t, confirmedTerms: confirmed, mismatchedFields: mismatches });
+    if (mismatches.length) {
+      state.metrics.fails++;
+      log("booking_mismatch_flagged", { fields: mismatches.map(k => ({ field: k, approved: t[k], confirmed: confirmed[k] })) }, "alert");
+    }
+    try {
+      const res = await api("/api/book", { session_id: state.pipeline && state.pipeline.session_id, place_id: state.selected.id,
+        name: state.selected.name, kind: state.selected.kind, date: state.plan.date, time: confirmed.time,
+        party_size: confirmed.partySize, platform: g.platform, confirmation: g.confirmation || null, real: true });
+      state.booking.serverId = res.booking_id;
+      state.booking.when = `${state.plan.date}T${to24(confirmed.time)}`;
+    } catch (e) { log("book_record_failed", { error: String(e) }, "alert"); }
+    go("booked");
+  },
+  addToCalendar() {
+    const blob = new Blob([icsFor(state.booking.confirmed, state.plan)], { type: "text/calendar" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "date-night.ics";
+    document.body.appendChild(a); a.click(); a.remove();
+    log("calendar_added", { venue: state.selected.id });
   },
   async approveNew() {
     log("mismatch_decision", { decision: "approve_new_terms", newApprovedTerms: state.found });
@@ -969,12 +1100,15 @@ document.getElementById("couple").addEventListener("click", async e => {
 });
 
 screenEl.addEventListener("click", e => {
+  const handoff = e.target.closest("[data-handoff]");
+  if (handoff) { log("booking_link_opened", { platform: handoff.dataset.handoff, venue: state.selected && state.selected.id }); return; }
   const btn = e.target.closest("[data-act]");
   if (!btn || btn.disabled) return;
   actions[btn.dataset.act](btn.dataset, btn);
 });
 screenEl.addEventListener("input", e => {
   if (e.target.dataset.auth) state.auth[e.target.dataset.auth] = e.target.value;
+  if (e.target.dataset.got) state.got[e.target.dataset.got] = e.target.value;
   if (e.target.dataset.vibe) state.basics[e.target.dataset.vibe].vibe = Number(e.target.value);
 });
 screenEl.addEventListener("submit", e => {
@@ -984,6 +1118,7 @@ screenEl.addEventListener("submit", e => {
 });
 
 screenEl.addEventListener("change", e => {
+  if (e.target.dataset.got) state.got[e.target.dataset.got] = e.target.value;
   const f = e.target.dataset.field;
   if (!f) return;
   state.plan[f] = e.target.type === "checkbox" ? e.target.checked : e.target.value;

@@ -11,7 +11,7 @@ This is the web app from Lab 7 connected to a real AI model (Lab 8). The design 
 | Onboarding → first profile | **Real AI.** Claude reads both partners' ♥/✕ ratings and writes the couple's taste profile. |
 | Plan → 3 picks | **Real AI.** Claude writes Google Maps searches, Google Places finds venues, plain code removes anything that breaks the hard rules (closed then, out of budget, no vegetarian options, rated under 4.2, visited in the last 60 days), then Claude picks 3 and explains each one. |
 | "% you'd both go back" | **An AI estimate, not a measured probability.** It stands in for the return-probability model from Assignment 3 until there are enough post-date check-ins to train one. |
-| Booking | **Simulated.** OpenTable and Resy have no public booking API. The approval screen, the "slot is gone" stop, and the Approved vs. Confirmed check all work on simulated data. |
+| Booking | **Real, made by the couple.** OpenTable and Resy have no public booking API, so after **Allow** the app opens the booking page with the details filled in (OpenTable: date, time and party; Resy: date and party; Google: the place's "Reserve a table"). The couple books with one tap, comes back, and says what they got. The Approved vs. Confirmed check flags any difference, "Couldn't get it" leads back to the other picks, and **Add to calendar** saves the date. Test-mode failure scenarios still use the simulated booking agent. |
 | Post-date check-in → profile update | **Real AI.** Each partner answers separately. A split is saved as split; a skip is saved as missing and changes nothing. Then Claude rewrites the profile and says what it learned. |
 | Test mode failure scenarios | **Always simulated**, so testing them never touches the couple's real profile. |
 
