@@ -544,6 +544,16 @@ function applyMe(me, banner) {
   go("plan");
 }
 
+// The logo: signed out → front door; mid-setup → setup; otherwise → Plan a date, keeping the form as filled in.
+function goHome() {
+  state.local = false; state.banner = null; state.profileEditing = false;
+  if (MODE.real && !state.me) return go("welcome");
+  if (MODE.real && !state.me.onboarded) return go(state.screen === "onboarding" ? "onboarding" : "basics");
+  if (!MODE.real && !state.memory) return go("onboarding");
+  log("home", {});
+  go("plan");
+}
+
 async function signOut() {
   try { await api("/api/logout", {}); } catch (e) {}
   state.me = null; state.banner = null; state.auth = { name_a: "", name_b: "", username: "", password: "" };
@@ -944,6 +954,8 @@ testEl.addEventListener("click", e => {
   const btn = e.target.closest("[data-scenario]");
   if (btn) startScenario(btn.dataset.scenario);
 });
+
+document.getElementById("home-link").addEventListener("click", e => { e.preventDefault(); goHome(); });
 
 document.getElementById("couple").addEventListener("click", async e => {
   if (e.target.closest("[data-signout]")) return signOut();
