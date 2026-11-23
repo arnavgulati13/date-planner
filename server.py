@@ -3,7 +3,7 @@
 It serves the web app in web/ and a few /api endpoints that run the real pipeline:
 Claude writes searches -> Google Places finds venues -> code filters them -> Claude picks 3,
 and after each date Claude rewrites the couple's memory. Your API keys stay here, in .env;
-the browser never sees them. Booking is still simulated (no public OpenTable/Resy API).
+the browser never sees them. Booking is a hand-off: the couple books on the venue's own booking page.
 """
 from __future__ import annotations
 
@@ -23,6 +23,7 @@ from flask import Flask, jsonify, request, session
 load_dotenv()
 
 import accounts  # noqa: E402
+import booking  # noqa: E402
 import ailog  # noqa: E402
 import config  # noqa: E402
 import filter as constraint_filter  # noqa: E402
@@ -268,6 +269,7 @@ def recommend():
               kinds=[p.kind for p in picks], request=req.describe())
 
     by_id = {v["place_id"]: v for v in candidates}
+    _shown_venues.update({p.place_id: by_id[p.place_id] for p in picks})
     out = []
     for p in picks:
         v = by_id[p.place_id]
@@ -287,6 +289,17 @@ def recommend():
                  dropped=dropped, widened=widened, notes=notes, picks=out, note=note, timing=timing,
                  source="claude" if not err and llm.available() else "fallback",
                  model=llm.model(), places="google" if places.live() else "sample")
+
+
+_shown_venues: dict[str, dict] = {}     # venues shown as picks, so /api/booking can look them up
+
+
+@app.post("/api/booking")
+@couple_required
+def booking_info():
+    """Where each pick takes bookings. Called after the picks are on screen, so picks aren't slower."""
+    venues = [_shown_venues[i] for i in request.get_json().get("ids", []) if i in _shown_venues]
+    return reply(booking=booking.lookup(venues))
 
 
 # ------------------------------------------------------------------ pick, book, review

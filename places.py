@@ -26,7 +26,7 @@ FIELDS = ",".join(f"places.{f}" for f in [
     "id", "displayName", "formattedAddress", "shortFormattedAddress", "location",
     "rating", "userRatingCount", "priceLevel", "types", "primaryTypeDisplayName",
     "editorialSummary", "regularOpeningHours", "servesVegetarianFood", "reservable",
-    "googleMapsUri", "websiteUri",
+    "googleMapsUri", "websiteUri", "nationalPhoneNumber",
 ])
 PRICE = {"PRICE_LEVEL_FREE": 0, "PRICE_LEVEL_INEXPENSIVE": 1, "PRICE_LEVEL_MODERATE": 2,
          "PRICE_LEVEL_EXPENSIVE": 3, "PRICE_LEVEL_VERY_EXPENSIVE": 4}
@@ -55,6 +55,7 @@ def _normalize(p: dict) -> dict:
         "reservable": p.get("reservable"),
         "maps_url": p.get("googleMapsUri"),
         "website": p.get("websiteUri"),
+        "phone": p.get("nationalPhoneNumber"),
     }
 
 
@@ -77,7 +78,8 @@ def search(query: str, price_levels: range | None = None, area: str = "") -> lis
     """One tool step of the agent: run a search the model wrote. Logged to logs/ai_log.jsonl."""
     sent = {"query": query, "price_levels": list(price_levels or []), "near": area or None}
     center = geo.center(area) if area else None
-    key = hashlib.sha1(f"{live()}|{query}|{list(price_levels or [])}|{center}".encode()).hexdigest()[:16]
+    # "v2": results gained the phone number, so older cached results are fetched again
+    key = hashlib.sha1(f"v2|{live()}|{query}|{list(price_levels or [])}|{center}".encode()).hexdigest()[:16]
     cached = CACHE / f"{key}.json"
     if cached.exists():
         venues = json.loads(cached.read_text())
