@@ -43,7 +43,7 @@ Useful options:
 
 Start the app (`.venv/bin/python server.py`, then open http://localhost:8000). The right-hand log shows every AI call and click as you go, and `logs/ai_log.jsonl` keeps them.
 
-- **Case 1:** In Test mode, click **Demo couple with 5 past dates**. Fill in the plan as in the table → **Find dates**. Read the three cards, and open "Picked by Claude…" above them to see the searches.
+- **Case 1:** In Test mode, click **Demo couple with 5 past dates**. Fill in the plan as in the table → **Find dates**. Read the three cards, and open "How we picked these" above them to see the searches.
 - **Case 2:** In Test mode, click **Happy path**. Rate the 14 spots as in the table → **Continue**. Read the "What we know so far" box, then open `data/profile.md` for the full profile. *This replaces the couple in `data/`.*
 - **Case 3:** Load the demo couple, fill in the plan as in the table → **Find dates**. Then type the note into "None of these?" → **Generate more**.
 - **Case 4:** Load the demo couple, plan any date, choose a pick → **Allow** → **Fast-forward: after the date**. Answer Maya **Yes**, Sam **No → Too loud** → **Save**. Read "Your updated profile", then plan a cozy date and read the reasons. For the skip, book again → Fast-forward → **Skip review**, and check that `data/profile.md` didn't change.

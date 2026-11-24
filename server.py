@@ -89,7 +89,9 @@ def healthz():
 
 def reply(**body):
     """Every API answer also carries the AI calls it made, for the on-screen log."""
-    return jsonify(**body, ai_calls=ailog.captured())
+    # The model name stays in logs/ai_log.jsonl; the browser never gets it.
+    calls = [{k: v for k, v in c.items() if k not in ("model", "effort", "error_detail")} for c in ailog.captured()]
+    return jsonify(**body, ai_calls=calls)
 
 
 @app.get("/")
@@ -104,8 +106,8 @@ def status():
     cfg = config.load()
     a, b = store.partner_names()
     return reply(
-        use_real_ai=cfg["use_real_ai"], model=cfg["model"],
-        claude_live=llm.available(), places_live=places.live(),
+        use_real_ai=cfg["use_real_ai"],
+        ai_live=llm.available(), places_live=places.live(),
         couple=store.load_couple() is not None, partners=[a, b],
     )
 
@@ -231,7 +233,7 @@ def recommend():
     q, err = llm.write_queries(profile, req)
     timing["write_searches"] = round(time.monotonic() - t0, 1)
     if err:
-        notes.append(f"Searches: fallback heuristic ({err})")
+        notes.append(f"Searches used our backup rules. {err}.")
     queries = q.queries + [q.explore_query]
     prices = range(req.price_min, req.price_max + 1)
     t = time.monotonic()
@@ -263,7 +265,7 @@ def recommend():
     timing["pick_3"] = round(time.monotonic() - t, 1)
     timing["total"] = round(time.monotonic() - t0, 1)
     if err:
-        notes.append(f"Ranking: fallback heuristic ({err})")
+        notes.append(f"Picks used our backup rules. {err}.")
     session_id = uuid.uuid4().hex[:8]
     store.log("shown", session_id=session_id, place_ids=[p.place_id for p in picks],
               kinds=[p.kind for p in picks], request=req.describe())
@@ -287,8 +289,8 @@ def recommend():
     ailog.write("agent_step", tool="timing", sent={"session_id": session_id}, returned=timing, error=None)
     return reply(session_id=session_id, queries=queries, found=len(found), kept=len(kept),
                  dropped=dropped, widened=widened, notes=notes, picks=out, note=note, timing=timing,
-                 source="claude" if not err and llm.available() else "fallback",
-                 model=llm.model(), places="google" if places.live() else "sample")
+                 source="ai" if not err and llm.available() else "fallback",
+                 places="google" if places.live() else "sample")
 
 
 _shown_venues: dict[str, dict] = {}     # venues shown as picks, so /api/booking can look them up

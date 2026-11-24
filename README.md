@@ -33,7 +33,7 @@ cp .env.example .env
 .venv/bin/python server.py
 ```
 
-Then open **http://localhost:8000** in your browser. The badge in the top bar says whether you're on real AI, and which model. To stop the app, press Ctrl+C in the Terminal.
+Then open **http://localhost:8000** in your browser. The badge in the demo tools says whether venues are live; the model in use is in `config.json` and `logs/ai_log.jsonl`. To stop the app, press Ctrl+C in the Terminal.
 
 ## Try it
 

@@ -45,9 +45,9 @@ def _call(prompt_file: str, user: str, schema: type[BaseModel], step: str) -> Ba
     """The one place the app calls Claude. Every call is written to logs/ai_log.jsonl."""
     global _client
     if not available():
-        error = "No Anthropic API key set, or use_real_ai is off in config.json"
+        error = "The AI is not set up (no API key, or it is switched off)"
         ailog.write("ai_call", step=step, model=None, prompt_file=prompt_file, input=user, output=None,
-                    error=error + " (the fallback heuristic answered instead)")
+                    error=error + " (our backup rules answered instead)")
         raise LLMUnavailable(error)
     _client = _client or anthropic.Anthropic()
     cfg = config.load()
@@ -60,7 +60,7 @@ def _call(prompt_file: str, user: str, schema: type[BaseModel], step: str) -> Ba
         output_format=schema,
         output_config={"effort": effort},
     )
-    started, resp, error = time.monotonic(), None, None
+    started, resp, error, detail = time.monotonic(), None, None, None
     try:
         if name in FALLBACK_MODELS:
             # if a safety classifier declines, the API retries on a fallback model
@@ -68,11 +68,11 @@ def _call(prompt_file: str, user: str, schema: type[BaseModel], step: str) -> Ba
         else:
             resp = _client.messages.parse(**request)
         if resp.stop_reason == "refusal" or resp.parsed_output is None:
-            error = f"Claude returned no usable answer (stop reason: {resp.stop_reason})"
+            error = f"The AI gave no usable answer (stop reason: {resp.stop_reason})"
     except anthropic.APIConnectionError as e:
-        error = f"Couldn't reach the Claude API: {e}"
+        error, detail = "Couldn't reach the AI", str(e)      # detail goes to the log file only
     except anthropic.APIStatusError as e:
-        error = f"Claude API error {e.status_code}: {e.message}"
+        error, detail = f"The AI returned an error ({e.status_code})", e.message
     finally:
         parsed = resp.parsed_output if resp is not None else None
         ailog.write(
@@ -87,7 +87,7 @@ def _call(prompt_file: str, user: str, schema: type[BaseModel], step: str) -> Ba
                         for p in parsed.picks] if parsed is not None and hasattr(parsed, "picks") else None,
             stop_reason=resp.stop_reason if resp is not None else None,
             usage={"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens} if resp is not None else None,
-            error=error,
+            error=error, error_detail=detail,
         )
     if error:
         raise LLMUnavailable(error)
@@ -213,7 +213,7 @@ def recommend(profile: str, req: store.DateRequest, candidates: list[dict]) -> t
             note = " ".join(x for x in (recs.note.strip(), extra_note) if x)
             if checked:
                 return checked, None, note
-        error = "Claude's picks didn't match any candidate"
+        error = "The AI's picks didn't match any candidate"
     except LLMUnavailable as e:
         error = str(e)
     return _heuristic_recommend(profile, req, candidates), error, ""
@@ -292,7 +292,7 @@ def _heuristic_recommend(profile: str, req: store.DateRequest, candidates: list[
         wild = max(rest, key=lambda v: len(_words(text(v)) & explore), default=None)
         if wild:
             picks.append(Pick.model_construct(return_chance=None, place_id=wild["place_id"], kind="wildcard", headline="Something new",
-                              why="A stretch from your 'To explore' list. (Offline mode heuristic.)", heads_up=""))
+                              why="A stretch from your 'To explore' list.", heads_up=""))
     return picks
 
 

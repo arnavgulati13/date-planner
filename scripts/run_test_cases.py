@@ -90,7 +90,7 @@ class Runner:
         kinds = sorted(p["kind"] for p in picks)
         best = [p for p in picks if p["kind"] == "best_fit"]
         wild = [p for p in picks if p["kind"] == "wildcard"]
-        self.check(1, "Claude made the picks (not the fallback)", res["source"] == "claude", "; ".join(res["notes"]))
+        self.check(1, "Claude made the picks (not the fallback)", res["source"] == "ai", "; ".join(res["notes"]))
         self.check(1, "Exactly 3 picks: 2 Best fit + 1 Wildcard", kinds == ["best_fit", "best_fit", "wildcard"], str(kinds))
         self.check(1, "All picks within budget ($$)", all(p["price"] in ("$$", "?") for p in picks),
                    ", ".join(f"{p['name']} {p['price']}" for p in picks))
