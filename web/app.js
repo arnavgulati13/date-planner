@@ -1,6 +1,6 @@
 // Date Night web app — UI flow.
 // Real mode (served by server.py with use_real_ai on): onboarding, picks and the
-// post-date memory update call the backend, which calls Claude. Booking stays simulated.
+// post-date memory update call the backend, which runs the AI. Booking stays simulated.
 // Simulated mode (opened as a file, or use_real_ai off): everything comes from
 // simulated_responses.js, exactly like the Lab 7 prototype.
 
@@ -179,7 +179,7 @@ async function api(path, body) {
       const brief = c.tool === "google_places_search" && r ? { ...r, venues: r.venues.map(v => v.name) } : r;
       log(`step · ${c.tool}`, { sent: c.sent, returned: brief, error: c.error }, c.error ? "alert" : "ai", false);
     } else {
-      log(`ai_call · ${c.step}`, { model: c.model, effort: c.effort, latency_ms: c.latency_ms, tokens: c.usage,
+      log(`ai_call · ${c.step}`, { latency_ms: c.latency_ms, tokens: c.usage,
         confidence: c.confidence, error: c.error, output: c.output,
         instructions: c.instructions ? `${c.prompt_file} (${c.instructions.length} chars, full text in logs/ai_log.jsonl)` : undefined },
         c.error ? "alert" : "ai", false);
@@ -633,12 +633,12 @@ function banner() {
 function pipelineSummary() {
   const p = state.pipeline;
   if (!p) return "";
-  const by = p.source === "claude" ? `Picked by Claude (${p.model})` : "Picked by the fallback heuristic";
+  const by = p.source === "ai" ? "How we picked these" : "Picked with our backup rules";
   const dropped = Object.entries(p.dropped || {}).map(([r, n]) => `${n} ${r}`).join(", ");
   const secs = p.timing && p.timing.total != null ? ` · ${Math.round(p.timing.total)}s` : "";
   return `<details class="how"><summary>${esc(by)} · ${p.found} found → ${p.kept} passed your rules → ${state.current.length} picked${secs}</summary>
     ${p.timing ? `<div><b>Time:</b> writing searches ${p.timing.write_searches}s · searching and filtering ${p.timing.search_and_filter}s · picking ${p.timing.pick_3}s</div>` : ""}
-    <div><b>Searches Claude wrote:</b> ${p.queries.map(q => `“${esc(q)}”`).join(" · ")}</div>
+    <div><b>Searches we ran:</b> ${p.queries.map(q => `“${esc(q)}”`).join(" · ")}</div>
     ${dropped ? `<div><b>Filtered out:</b> ${esc(dropped)}</div>` : ""}
     <div><b>Venues from:</b> ${p.places === "google" ? "Google Places (live)" : "sample Chicago venues"}</div>
     ${(p.notes || []).map(n => `<div class="hint" style="text-align:left">${esc(n)}</div>`).join("")}</details>`;
@@ -1029,7 +1029,7 @@ async function saveVerdict(v, r, rv) {
         api("/api/review", { booking_id: state.booking.serverId, place_id: r.id, name: r.name, kind: r.kind,
           when: state.booking.when, verdict: v, answers: { a: rv.a, b: rv.b }, reasons: { a: rv.reasonA, b: rv.reasonB } }));
       state.learned = res.learned || [];
-      if (res.error) state.error = "Profile updated by the fallback heuristic: " + res.error;
+      if (res.error) state.error = "We saved your answers with our backup rules. " + res.error;
     } catch (e) {
       state.error = "Couldn't save to the backend: " + (e.message || e);
     }
@@ -1190,17 +1190,17 @@ async function init() {
         const { seeds } = seedRes;
         state.venues = seeds.map(v => ({ ...v, emoji: emojiFor(v.type) }));
         state.ratings = Object.fromEntries(state.venues.map(v => [v.id, { a: null, b: null }]));
-        if (me.logged_in) { MODE.status.model = st.model; applyMe(me); }
+        if (me.logged_in) applyMe(me);
         else state.screen = "welcome";
       }
     } catch (e) { MODE.real = false; }  // no backend: run the simulated prototype
   }
   const m = document.getElementById("mode");
   if (m) m.textContent = MODE.real
-    ? `Real AI · ${MODE.status.model}${MODE.status.claude_live ? "" : " (no key: fallback)"} · ${MODE.status.places_live ? "live venues" : "sample venues"}`
-    : "Simulated AI";
+    ? `${MODE.status.places_live ? "Live venues" : "Sample venues"}${MODE.status.ai_live ? "" : " · backup rules"}`
+    : "Sample data";
   renderTestPanel();
   render();
-  log("session_started", { couple: [A, B], mode: MODE.real ? "real" : "simulated", model: MODE.status && MODE.status.model });
+  log("session_started", { couple: [A, B], mode: MODE.real ? "real" : "simulated" });
 }
 init();

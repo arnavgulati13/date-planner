@@ -142,10 +142,10 @@ window.SIMULATED_RESPONSES = {
   "testMode": {
     "scenarios": [
       { "id": "happy", "label": "Happy path", "startsAt": "Starts at Step 1 · Onboarding", "screen": "onboarding",
-        "whatToDo": "Go through the normal journey: rate spots, plan, pick, allow, then review. With real AI on, onboarding starts a fresh couple profile." },
+        "whatToDo": "Go through the normal journey: rate spots, plan, pick, allow, then review. Onboarding starts a fresh couple profile." },
       { "id": "demo", "label": "Demo couple with 5 past dates", "startsAt": "Starts at Step 2 · Plan", "screen": "plan",
         "liveOnly": true,
-        "whatToDo": "Loads Maya & Sam with five past dates and a written profile, so the real AI's picks can lean on their history. Plan a date and read why each pick fits." },
+        "whatToDo": "Loads Maya & Sam with five past dates and a written profile, so the picks can lean on their history. Plan a date and read why each pick fits." },
       { "id": "split", "label": "1 · Couple disagrees after the date", "startsAt": "Starts at Step 5 · Review", "screen": "review",
         "prefillReview": true, "local": true,
         "whatToDo": "Maya said Yes, Sam said No (too loud). See the Split verdict card. Change the reason or an answer, then Save — or click Skip review to see it saved as missing." },
