@@ -107,7 +107,6 @@
 .verdict.split { border: 2px solid var(--warn); background: var(--warn-soft); box-shadow: 0 0 0 4px rgba(183,121,31,.12); }
 .verdict.split .adj { color: #7a5214; font-weight: 600; }
 .verdict.joint_yes { border-color: var(--good); background: var(--good-soft); }
-.verdict.missing .badge { color: var(--muted); }
 
 /* Scenario 2: warning + terms tables */
 .warn-box { background: #fdecec; color: #9b2c2c; border: 1.5px solid #f2b8b8; border-radius: 12px; padding: 12px 14px; font-weight: 650; margin: 6px 0 14px; }

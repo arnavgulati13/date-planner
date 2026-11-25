@@ -125,6 +125,7 @@ def pending_checkin(now: datetime | None = None) -> dict | None:
     (Assignment 3's 'session gate'). Pass a later `now` to fast-forward in demos."""
     now = now or datetime.now()
     evs = events()
+    # "checkin_skipped" only appears in older logs, from when a review could be skipped
     rated = {e["booking_id"] for e in evs if e["type"] in ("feedback", "checkin_skipped")}
     for e in reversed(evs):
         if e["type"] == "booked" and e["booking_id"] not in rated:
