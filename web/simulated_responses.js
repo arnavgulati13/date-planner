@@ -101,11 +101,11 @@ window.SIMULATED_RESPONSES = {
   "failureScenarios": {
 
     // Scenario 1 — Recommender learns the wrong lesson (Step 5, verification).
-    // Input: partners disagree (or skip). Output: a split / missing verdict, never a fake joint yes or no.
+    // Input: partners disagree. Output: a split verdict, never a fake joint yes or no.
     "scenario1": {
       "input": { "a": "yes", "b": "no", "reasonB": "Too loud" },   // what "Jump to review" pre-fills
       "reasons": ["Too loud", "Food", "Price", "Vibe", "Service"],
-      "verdictLabels": { "joint_yes": "Joint yes", "joint_no": "Joint no", "split": "Split verdict", "missing": "Missing" },
+      "verdictLabels": { "joint_yes": "Joint yes", "joint_no": "Joint no", "split": "Split verdict" },
       "splitLine": "{yes} would go back to {venue}. {no} wouldn't — {reason}.",
       "noReasonText": "no reason given yet",
       "adjustments": {
@@ -117,8 +117,7 @@ window.SIMULATED_RESPONSES = {
         "none":     "Next time we'll treat {venue} as a maybe, not a sure thing."
       },
       "jointYesLine": "You'd both go back. {venue} is a keeper.",
-      "jointNoLine": "Neither of you would go back. We won't suggest places like {venue} again.",
-      "missingLine": "Saved as missing — it won't count as a yes or a no, so it can't skew your next picks."
+      "jointNoLine": "Neither of you would go back. We won't suggest places like {venue} again."
     },
 
     // Scenario 2 — Booking agent books the wrong thing (Step 4, verification).
@@ -148,7 +147,7 @@ window.SIMULATED_RESPONSES = {
         "whatToDo": "Loads Maya & Sam with five past dates and a written profile, so the picks can lean on their history. Plan a date and read why each pick fits." },
       { "id": "split", "label": "1 · Couple disagrees after the date", "startsAt": "Starts at Step 5 · Review", "screen": "review",
         "prefillReview": true, "local": true,
-        "whatToDo": "Maya said Yes, Sam said No (too loud). See the Split verdict card. Change the reason or an answer, then Save — or click Skip review to see it saved as missing." },
+        "whatToDo": "Maya said Yes, Sam said No (too loud). See the Split verdict card. Change the reason or an answer, then Save." },
       { "id": "slotGone", "label": "2 · Approved table is gone", "startsAt": "Starts at Step 4 · Approval", "screen": "confirm",
         "slotGone": true, "local": true,
         "whatToDo": "Click Allow. The agent will find your 7:30 PM slot gone and stop. Then approve 8:15 PM, go back to other picks, or cancel." },

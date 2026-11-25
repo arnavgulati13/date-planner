@@ -146,7 +146,6 @@ function verdictOf(rv) {
 function adjustmentFor(verdict, rv, venue) {
   if (verdict === "joint_yes") return fill(F1.jointYesLine, { venue });
   if (verdict === "joint_no") return fill(F1.jointNoLine, { venue });
-  if (verdict === "missing") return F1.missingLine;
   const who = rv.a === "no" ? A : B;
   const reason = rv.a === "no" ? rv.reasonA : rv.reasonB;
   return fill(F1.adjustments[reason] || F1.adjustments.none, { who, venue });
@@ -571,8 +570,7 @@ const screens = {
       ${v === "split" ? `<div style="height:16px"></div>${verdictCard(v, rv, r.name)}` : ""}
       <div style="height:22px"></div>
       <button class="btn" data-act="saveReview" ${v ? "" : "disabled"}>Save</button>
-      <button class="btn secondary" data-act="skipReview">Skip review</button>
-      <p class="hint">Skipping saves this as “missing”, not as a “no”.</p>`;
+      <p class="hint">${v ? "" : `We need both answers: ${esc(A)}'s and ${esc(B)}'s.`}</p>`;
   },
 
   profile() {
@@ -610,11 +608,11 @@ const screens = {
 
   thanks() {
     const r = state.selected, v = state.verdict;
-    const icon = { joint_yes: "💞", joint_no: "📝", split: "⚖️", missing: "⏭️" }[v];
+    const icon = { joint_yes: "💞", joint_no: "📝", split: "⚖️" }[v];
     return `
       <div class="big-icon">${icon}</div>
-      <h1 class="center">${v === "missing" ? "Review skipped" : "Thanks!"}</h1>
-      <p class="sub center">${esc(v === "missing" ? "No problem." : S.review.thanks)}</p>
+      <h1 class="center">Thanks!</h1>
+      <p class="sub center">${esc(S.review.thanks)}</p>
       <label class="f" style="margin-top:0">What we learned</label>
       ${verdictCard(v, state.review, r.name)}
       ${state.learned.length ? `<div class="learned"><b>🧠 Your updated profile</b>${state.learned.map(l => `<div>${esc(l)}</div>`).join("")}</div>` : ""}
@@ -997,15 +995,11 @@ const actions = {
     const rv = state.review, r = state.selected, v = verdictOf(rv);
     saveVerdict(v, r, rv);
   },
-  skipReview() {
-    log("review_skipped", { venue: state.selected.id, partialAnswers: { [A]: state.review.a, [B]: state.review.b } });
-    saveVerdict("missing", state.selected, state.review);
-  },
 };
 
 async function saveVerdict(v, r, rv) {
   state.verdict = v; state.learned = []; state.error = null;
-  if (v !== "missing") state.metrics.reviews++;          // missing reviews stay out of the denominator
+  state.metrics.reviews++;
   if (v === "joint_yes") state.metrics.returns++;
   const adjustment = adjustmentFor(v, rv, r.name);
   log("review_saved", {
@@ -1014,17 +1008,17 @@ async function saveVerdict(v, r, rv) {
     reasons: { [A]: rv.reasonA, [B]: rv.reasonB },
     verdictType: v,
     adjustmentForNextTime: adjustment,
-  }, v === "split" || v === "missing" ? "alert" : "user");
-  // Close the loop with the right label: split stays split, missing is excluded — never a fake "no".
-  const label = { joint_yes: 1, joint_no: 0, split: "split", missing: null }[v];
+  }, v === "split" ? "alert" : "user");
+  // Close the loop with the right label: split stays split, never a fake joint yes or no.
+  const label = { joint_yes: 1, joint_no: 0, split: "split" }[v];
   log("memory_updated", {
     venue: r.id, label,
-    perPartner: v === "missing" ? null : { [A]: rv.a === "yes" ? 1 : 0, [B]: rv.b === "yes" ? 1 : 0 },
-    usedForTraining: v !== "missing",
+    perPartner: { [A]: rv.a === "yes" ? 1 : 0, [B]: rv.b === "yes" ? 1 : 0 },
+    usedForTraining: true,
   }, "ai");
   if (live() && state.booking && state.booking.serverId) {
     try {
-      const res = await whileLoading(v === "missing" ? ["Saving"] : ["Saving your answers", "Updating your profile"],
+      const res = await whileLoading(["Saving your answers", "Updating your profile"],
         "Updating what we know about you two.",
         api("/api/review", { booking_id: state.booking.serverId, place_id: r.id, name: r.name, kind: r.kind,
           when: state.booking.when, verdict: v, answers: { a: rv.a, b: rv.b }, reasons: { a: rv.reasonA, b: rv.reasonB } }));

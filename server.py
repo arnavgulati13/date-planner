@@ -331,14 +331,13 @@ def book():
 @app.post("/api/review")
 @couple_required
 def review():
-    """Save each partner's answer. A split stays split; a skip is 'missing' and teaches the memory nothing."""
+    """Save each partner's answer. A split stays split. Both answers are required."""
     b = request.get_json()
     a_name, b_name = store.partner_names()
     answers = {a_name: b["answers"].get("a"), b_name: b["answers"].get("b")}
     reasons = {a_name: b["reasons"].get("a"), b_name: b["reasons"].get("b")}
-    if b["verdict"] == "missing":
-        store.log("checkin_skipped", booking_id=b["booking_id"], verdict="missing", partial_answers=answers)
-        return reply(learned=[], profile=store.load_profile())
+    if any(ans not in ("yes", "no") for ans in answers.values()) or b["verdict"] not in ("joint_yes", "joint_no", "split"):
+        return jsonify(error="Both of you need to answer before we save the review."), 400
 
     note = "; ".join(f"{who} said no: {why.lower()}" for who, why in reasons.items() if why)
     store.log("feedback", booking_id=b["booking_id"], place_id=b["place_id"], name=b["name"], when=b["when"],

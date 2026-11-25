@@ -159,7 +159,7 @@ class Runner:
         self.note(3, f"Round 2 · Generate more with note: “{note}”", self.picks_md(r2))
 
     def case4(self):
-        print("\nCase 4 · Failure (Lab 7 #1): split verdict, then a skipped review")
+        print("\nCase 4 · Failure (Lab 7 #1): split verdict, then a review with one answer missing")
         self.demo()
         sat = next_weekday(5)
         res = self.recommend(date=sat.isoformat(), time="8:00 PM", location="West Loop",
@@ -197,13 +197,13 @@ class Runner:
         bid2 = self.post("/api/book", {"session_id": nxt["session_id"], "place_id": q["id"], "name": q["name"],
                                        "kind": q["kind"], "date": sat.isoformat(), "time": "7:30 PM"})["booking_id"]
         before = self.store.load_profile()
-        skip = self.post("/api/review", {"booking_id": bid2, "place_id": q["id"], "name": q["name"], "kind": q["kind"],
-                                         "when": f"{sat.isoformat()}T19:30:00", "verdict": "missing",
-                                         "answers": {"a": None, "b": None}, "reasons": {"a": None, "b": None}})
-        self.check(4, "Skipped review saved as missing (checkin_skipped)",
-                   any(e["type"] == "checkin_skipped" and e["booking_id"] == bid2 for e in self.store.events()))
-        self.check(4, "Skip made no profile-update AI call", not any(c["step"] == "update_profile" for c in skip["ai_calls"]))
-        self.check(4, "Profile unchanged after the skip", self.store.load_profile() == before)
+        r = self.c.post("/api/review", json={"booking_id": bid2, "place_id": q["id"], "name": q["name"], "kind": q["kind"],
+                                             "when": f"{sat.isoformat()}T19:30:00", "verdict": "split",
+                                             "answers": {"a": "yes", "b": None}, "reasons": {"a": None, "b": None}})
+        self.check(4, "Review with only one answer is refused", r.status_code == 400)
+        self.check(4, "Nothing saved for that booking", not any(
+            e["type"] in ("feedback", "checkin_skipped") and e["booking_id"] == bid2 for e in self.store.events()))
+        self.check(4, "Profile unchanged", self.store.load_profile() == before)
 
 
 def main():
