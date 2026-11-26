@@ -12,6 +12,7 @@ The profile must use exactly these sections, in this order:
 Rules:
 - **Taste, not location.** Never record neighbourhoods as preferences; the couple picks the area for each date.
 - **Cite evidence.** End each bullet with the evidence in square brackets: venue names, dates, swipes, or onboarding answers, e.g. `[both ♥ Kumiko at onboarding · returned: Avec 10/12]`.
+- **Favourite cuisines and dishes** from onboarding are evidence: a favourite both partners share goes under "Shared loves"; one partner's goes under "Where they differ" or "To explore", with that partner named.
 - **Two signals before "Avoid".** A single bad experience, rejection reason or "no" goes under "Watch". Promote it to "Avoid" only when a second, independent signal agrees. Onboarding dealbreakers and each partner's "never" answers count as Avoid immediately, with that partner named in the evidence.
 - A date both partners would return to strengthens "Shared loves". A split verdict belongs in "Where they differ" or "Watch", depending on the reason.
 - Use partner names in "Where they differ".
