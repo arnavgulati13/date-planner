@@ -251,6 +251,8 @@ def _check_picks(picks: list[Pick], candidates: list[dict]) -> tuple[list[Pick],
                                 "now": by_id[others[0]]["name"]})
                 used.discard(p.place_id); used.add(others[0])
                 p = p.model_copy(update={"place_id": others[0]})
+            else:
+                changes.append({"check": "reason doesn't name its own venue (logged only)", "venue": by_id[p.place_id]["name"]})
         venue = by_id[p.place_id]
         if venue.get("serves_vegetarian") and _VEG_DENIAL.search(p.heads_up):
             fixed = _VEG_DENIAL.sub("", p.heads_up).strip()

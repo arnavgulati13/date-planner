@@ -125,7 +125,8 @@ def _me() -> dict:
     pending = store.pending_checkin()
     return {"logged_in": True, "username": username, "demo": username == accounts.DEMO,
             "partners": list(store.partner_names()), "onboarded": bool(store.load_profile()),
-            "vegetarian": vegetarian, "pending_review": pending}
+            "vegetarian": vegetarian, "pending_review": pending,
+            "food_needs": [{"name": p["name"], "dietary": p.get("dietary", [])} for p in partners if p.get("dietary")]}
 
 
 @app.get("/api/me")
@@ -178,7 +179,8 @@ def onboard():
     store.reset()
     store.save_couple({"partners": [
         {"name": n, "dietary": basics.get(k, {}).get("dietary", []), "never": basics.get(k, {}).get("never", []),
-         "vibe": basics.get(k, {}).get("vibe", 5)}
+         "vibe": basics.get(k, {}).get("vibe", 5),
+         "cuisines": [x.strip() for x in str(basics.get(k, {}).get("favorites") or "").split(",") if x.strip()]}
         for n, k in zip(names, ("a", "b"))]})
     for place_id, r in body["ratings"].items():
         v = venues[place_id]
@@ -277,7 +279,7 @@ def recommend():
         v = by_id[p.place_id]
         out.append({
             "id": v["place_id"], "name": v["name"], "type": v.get("type", ""),
-            "price": "$" * (v.get("price_level") or 0) or "?", "rating": v.get("rating"),
+            "price": "$" * (v.get("price_level") or 0) or "?", "rating": v.get("rating"), "rating_count": v.get("rating_count"),
             "address": geo.clean_address(v.get("address", "")), "miles": v.get("_miles"),
             "maps_url": v.get("maps_url"), "reservable": v.get("reservable"),
             "kind": p.kind, "headline": p.headline, "why": p.why, "heads_up": p.heads_up,

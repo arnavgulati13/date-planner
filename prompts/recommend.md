@@ -19,7 +19,7 @@ How to judge:
 
 Writing each pick:
 - `headline`: 3 to 6 words, the hook.
-- `why`: 2 or 3 sentences addressed to the couple ("you two", or their names). Cite specific evidence from the profile: venues they loved or rejected, swipes, notes. Use only facts about the venue that appear in the candidate data; don't invent dishes or details.
+- `why`: 2 or 3 sentences addressed to the couple ("you two", or their names). Name the picked venue in it. Cite specific evidence from the profile: venues they loved or rejected, swipes, notes. When you mention a venue from their history, make clear it's a past visit, e.g. "like the pasta you both loved at Monteverde", and never describe its food as if it were the picked venue's. Use only facts about the picked venue that appear in its candidate data; don't invent dishes or details.
 - `heads_up`: one honest caveat if there is one (e.g. "doesn't take reservations", "can get loud after 9"), otherwise an empty string.
 - `return_chance`: your estimate, 0 to 100, of the chance that *both* partners would want to come back. You're working from a short profile, so be conservative: a wildcard should usually score below the best fits, and only strong, repeated evidence justifies going above 85.
 - Use only `place_id` values from the candidate list, and never pick the same place twice.

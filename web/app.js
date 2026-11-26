@@ -37,6 +37,17 @@ const fill = (tpl, vars) => tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
 const venueName = id => (S.onboardingVenues.find(v => v.id === id) || {}).name;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// Local dates as YYYY-MM-DD, and one-tap shortcuts so nobody has to fight the browser's calendar.
+function isoDay(offset, from = new Date()) {
+  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function quickDates() {
+  const dow = new Date().getDay();                       // 0 Sun … 6 Sat
+  const toFri = (5 - dow + 7) % 7, toSat = (6 - dow + 7) % 7;
+  return [["Tonight", isoDay(0)], [toFri ? "This Fri" : "Fri (tonight)", isoDay(toFri)],
+          ["This Sat", isoDay(toSat)], ["Next Sat", isoDay(toSat + 7)]].filter(([l]) => l !== "Fri (tonight)");
+}
 function fmtDate(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
@@ -269,11 +280,11 @@ const screens = {
         <h1>Create your couple account</h1>
         <p class="sub">One login for the two of you. Use it on either phone.</p>
         <div class="row2">
-          <div><label class="f" for="f-name-a">Your first name</label><input id="f-name-a" data-auth="name_a" autocomplete="given-name" value="${esc(a.name_a)}" placeholder="Jordan"></div>
-          <div><label class="f" for="f-name-b">Your partner's first name</label><input id="f-name-b" data-auth="name_b" value="${esc(a.name_b)}" placeholder="Priya"></div>
+          <div><label class="f" for="f-name-a">Your first name</label><input id="f-name-a" data-auth="name_a" autocomplete="given-name" value="${esc(a.name_a)}" placeholder="First name"></div>
+          <div><label class="f" for="f-name-b">Your partner's first name</label><input id="f-name-b" data-auth="name_b" value="${esc(a.name_b)}" placeholder="First name"></div>
         </div>
         <label class="f" for="f-user">Couple username</label>
-        <input id="f-user" data-auth="username" autocomplete="username" autocapitalize="none" value="${esc(a.username)}" placeholder="jordan-and-priya">
+        <input id="f-user" data-auth="username" autocomplete="username" autocapitalize="none" value="${esc(a.username)}" placeholder="e.g. both-your-names">
         <label class="f" for="f-pass">Shared password</label>
         <input id="f-pass" type="password" data-auth="password" autocomplete="new-password" value="${esc(a.password)}" placeholder="At least 6 characters">
         ${state.authError ? `<p class="form-error" role="alert">${esc(state.authError)}</p>` : ""}
@@ -290,7 +301,7 @@ const screens = {
         <h1>Welcome back</h1>
         <p class="sub">Log in with your couple username.</p>
         <label class="f" for="f-user">Couple username</label>
-        <input id="f-user" data-auth="username" autocomplete="username" autocapitalize="none" value="${esc(a.username)}" placeholder="jordan-and-priya">
+        <input id="f-user" data-auth="username" autocomplete="username" autocapitalize="none" value="${esc(a.username)}" placeholder="e.g. both-your-names">
         <label class="f" for="f-pass">Shared password</label>
         <input id="f-pass" type="password" data-auth="password" autocomplete="current-password" value="${esc(a.password)}">
         ${state.authError ? `<p class="form-error" role="alert">${esc(state.authError)}</p>` : ""}
@@ -309,6 +320,8 @@ const screens = {
       return `<div class="basics-col">
         <h3 class="who ${who}">${esc(name)}</h3>
         <label class="f">Food needs</label>${chips("dietary", o.dietary)}
+        <label class="f" for="fav-${who}">Favorite cuisines or dishes</label>
+        <input type="text" id="fav-${who}" data-fav="${who}" value="${esc(b.favorites || "")}" placeholder="e.g. Italian, rigatoni alla vodka">
         <label class="f">Never, please</label>${chips("never", o.never)}
         <label class="f" for="vibe-${who}">Vibe</label>
         <input type="range" id="vibe-${who}" min="0" max="10" step="1" value="${b.vibe}" data-vibe="${who}">
@@ -361,7 +374,9 @@ const screens = {
       <h1>Plan a date</h1>
       <p class="sub">Tell us the basics. Everything marked <span style="color:var(--a)">*</span> is required.</p>
       <div class="row2">
-        <div><label class="f">Day <span class="req">*</span></label><input type="date" data-field="date" value="${p.date}"></div>
+        <div><label class="f">Day <span class="req">*</span></label><input type="date" data-field="date" min="${isoDay(0)}" value="${p.date}">
+          <div class="chips" style="margin-top:8px">${quickDates().map(([label, iso]) =>
+            `<button class="chip ${p.date === iso ? "on" : ""}" data-act="pickDate" data-val="${iso}">${label}</button>`).join("")}</div></div>
         <div><label class="f">Time <span class="req">*</span></label>
           <select data-field="time"><option value="">Pick…</option>${o.times.map(t => `<option ${p.time === t ? "selected" : ""}>${t}</option>`).join("")}</select></div>
       </div>
@@ -399,7 +414,7 @@ const screens = {
         <div class="rec">
           <div class="badge ${r.badge}">${r.badge === "best" ? "★ Best fit" : "+ Wildcard"}</div>
           <h3>${esc(r.name)}</h3>
-          <div class="meta">${esc(r.type)} · ${r.price} · ${r.rating}★ · ${r.distance}</div>
+          <div class="meta">${esc(r.type)} · ${r.price} · ${r.rating} · ${r.distance}</div>
           ${r.headline ? `<p class="headline">${esc(r.headline)}</p>` : ""}
           <p class="why">${esc(r.why)}</p>
           ${r.showFlag ? `<div class="flag">⚠ ${esc(r.flag)}</div>` : ""}
@@ -527,13 +542,14 @@ const screens = {
     return `
       <div class="big-icon">${bad ? "⚠️" : "🎉"}</div>
       <h1 class="center">${bad ? "Booked — but check this" : "You're booked!"}</h1>
-      <p class="sub center">${esc(bad ? (b.real ? "What you booked differs from what you approved. Check the highlighted rows before you go." : F2.mismatchWarning) : (b.real ? "Checked against what you approved." : S.booking.successMessage))}</p>
+      <p class="sub center">${esc(bad ? (b.real ? "What you booked differs from what you approved. Check the highlighted rows before you go." : F2.mismatchWarning) : (b.real ? "What you told us matches what you approved." : S.booking.successMessage))}</p>
+      ${b.real && !b.confirmation ? `<div class="flag">Self-reported: we can't see your booking on ${esc(b.platform)}. Add the confirmation number from the email to keep it on record.</div>` : ""}
       <div class="summary">
         <div class="line"><span class="k">${esc(c.venue)}</span><span class="v">${esc(c.date)}</span></div>
         <div class="line"><span class="k">${esc(c.time)} · party of ${c.partySize}</span><span class="v">${b.real ? esc(b.platform) : "#" + b.id}</span></div>
       </div>
       <label class="f" style="margin-top:0">Booking check</label>
-      ${termsTable(b.approved, c, "Approved", "Confirmed", { markBad: true })}
+      ${termsTable(b.approved, c, "Approved", b.real ? (b.confirmation ? "Booked" : "You told us") : "Confirmed", { markBad: true })}
       <div style="height:14px"></div>
       ${b.real ? `
       <p class="hint" style="text-align:left">Booked by you on ${esc(b.platform)}${b.confirmation ? " · confirmation " + esc(b.confirmation) : ""}.</p>
@@ -600,6 +616,7 @@ const screens = {
       <span class="step-tag">Your profile</span>
       <h1>What we know about ${esc(A)} &amp; ${esc(B)}</h1>
       <p class="sub">Built from your ratings and every date you review. The brackets show the evidence.</p>
+      ${foodNeeds()}
       ${sections.length ? sections.join("") : `<p class="flag">No profile yet. Rate some spots to start one.</p>`}
       <div style="height:12px"></div>
       <button class="btn" data-act="goPlan">Plan a date</button>
@@ -621,6 +638,15 @@ const screens = {
       <button class="btn" data-act="goPlan">Plan the next date</button>`;
   },
 };
+
+function foodNeeds() {
+  const needs = (state.me && state.me.food_needs) || [];
+  if (!needs.length) return "";
+  return `<div class="profile-sec"><h3>Food needs</h3><ul>${needs.map(n =>
+    `<li>${esc(n.name)}: ${esc(n.dietary.join(", "))}</li>`).join("")}</ul>
+    <p class="meta">${needs.some(n => n.dietary.some(d => /vegetarian|vegan/i.test(d)))
+      ? "Vegetarian is a hard rule: places that don't serve it are filtered out before the AI sees them." : ""}</p></div>`;
+}
 
 function banner() {
   if (!state.banner) return "";
@@ -752,7 +778,7 @@ async function showRecommendations(reason) {
         reason, api("/api/recommend", { ...state.plan, craving: cravingOf(state.plan), note: state.note, exclude: state.shown }));
       state.pipeline = res;
       state.current = res.picks.map(p => ({
-        id: p.id, name: p.name, type: p.type, price: p.price, rating: p.rating ?? "?", distance: (p.miles != null ? p.miles + " mi · " : "") + p.address,
+        id: p.id, name: p.name, type: p.type, price: p.price, rating: p.rating != null ? `${p.rating}★ (${Number(p.rating_count || 0).toLocaleString()})` : "no rating", distance: (p.miles != null ? p.miles + " mi · " : "") + p.address,
         headline: p.headline, why: p.why, percent: p.return_chance, openSlot: state.plan.time,
         showFlag: !!p.heads_up, flag: p.heads_up, badge: p.kind === "wildcard" ? "wild" : "best", kind: p.kind,
         mapsUrl: p.maps_url, reservable: p.reservable,
@@ -827,7 +853,8 @@ const actions = {
       const res = await whileLoading(["Saving your answers", "Writing your first profile"],
         "Building what we know about you two.", api("/api/onboard", { ratings: state.ratings, basics: state.basics }));
       log("memory_initialized", { learned: res.learned, profile: res.profile, error: res.error }, "ai");
-      if (state.me) state.me.onboarded = true;
+      // Re-read the account so the food needs and the vegetarian default reflect what was just saved.
+      try { state.me = await api("/api/me"); } catch (e) { if (state.me) state.me.onboarded = true; }
       state.plan.vegetarian = ["a", "b"].some(w => state.basics[w].dietary.some(d => d === "Vegetarian" || d === "Vegan"));
       state.profileMd = res.profile; state.profileEditing = false;
       state.banner = { title: "You're all set. Here's what we learned.", lines: res.learned };
@@ -836,6 +863,10 @@ const actions = {
       state.banner = { title: "Couldn't save your setup", lines: [String(e.message || e)] };
     }
     go("plan");
+  },
+  pickDate(d) {
+    state.plan.date = d.val;
+    render();
   },
   chip(d) {
     const arr = state.plan[d.key] || (state.plan[d.key] = []);
@@ -1157,6 +1188,7 @@ screenEl.addEventListener("input", e => {
   if (e.target.dataset.auth) state.auth[e.target.dataset.auth] = e.target.value;
   if (e.target.dataset.got) state.got[e.target.dataset.got] = e.target.value;
   if (e.target.dataset.vibe) state.basics[e.target.dataset.vibe].vibe = Number(e.target.value);
+  if (e.target.dataset.fav) state.basics[e.target.dataset.fav].favorites = e.target.value;
 });
 screenEl.addEventListener("submit", e => {
   e.preventDefault();
