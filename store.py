@@ -145,7 +145,7 @@ def stats() -> dict:
     sessions = [e for e in evs if e["type"] == "shown"]
     picks = [e for e in evs if e["type"] == "picked"]
     feedback = [e for e in evs if e["type"] == "feedback"]
-    booked = [e for e in evs if e["type"] == "booked"]
+    booked = list({e["booking_id"]: e for e in evs if e["type"] == "booked"}.values())   # an update re-logs the same id
     wildcard_picks = [e for e in picks if e.get("kind") == "wildcard"]
     both_return = [e for e in feedback if all(e["would_return"].values())]
 

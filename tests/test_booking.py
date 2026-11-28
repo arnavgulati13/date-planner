@@ -33,3 +33,23 @@ def test_platform_branding_links_are_not_venues():
 
 def test_no_booking_link():
     assert booking.find_link('<a href="/menu">Menu</a> <a href="https://instagram.com/x">IG</a>') is None
+
+
+def test_sister_restaurant_link_is_skipped():
+    # Ciccio Mio's website links to Bavette's Resy page (same restaurant group)
+    html = '<a href="https://resy.com/cities/chicago-il/venues/bavettes-bar-and-boeuf">Bavette\'s</a>'
+    assert booking.find_link(html, "Ciccio Mio") is None
+    assert booking.find_link(html, "Bavette's Bar & Boeuf") == ("Resy", "https://resy.com/cities/chicago-il/venues/bavettes-bar-and-boeuf")
+
+
+def test_own_link_found_after_a_sister_link():
+    html = ('<a href="https://resy.com/cities/chicago-il/venues/bavettes-bar-and-boeuf">x</a>'
+            '<a href="https://resy.com/cities/chicago-il/venues/ciccio-mio">y</a>')
+    assert booking.find_link(html, "Ciccio Mio") == ("Resy", "https://resy.com/cities/chicago-il/venues/ciccio-mio")
+
+
+def test_slugs_that_name_the_venue_differently():
+    for slug, name in [("port-union-reservations-chicago", "Port Union"), ("dearlybeloved", "Dearly Beloved"),
+                       ("plantaqueenhg", "PLANTA Chicago"), ("elinas", "Elina's"), ("alltogethernow", "All Together Now"),
+                       ("the-vig-west-loop-chicago", "The VIG West Loop"), ("itilian-hommade-company", "Italian Homemade Company (Fulton Market)")]:
+        assert booking.names_venue(slug, name), (slug, name)

@@ -42,6 +42,7 @@ function isoDay(offset, from = new Date()) {
   const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + offset);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+function nextDays(n) { return Array.from({ length: n }, (_, i) => isoDay(i)); }
 function quickDates() {
   const dow = new Date().getDay();                       // 0 Sun … 6 Sat
   const toFri = (5 - dow + 7) % 7, toSat = (6 - dow + 7) % 7;
@@ -374,7 +375,8 @@ const screens = {
       <h1>Plan a date</h1>
       <p class="sub">Tell us the basics. Everything marked <span style="color:var(--a)">*</span> is required.</p>
       <div class="row2">
-        <div><label class="f">Day <span class="req">*</span></label><input type="date" data-field="date" min="${isoDay(0)}" value="${p.date}">
+        <div><label class="f">Day <span class="req">*</span></label><select data-field="date"><option value="">Pick a day…</option>${nextDays(60).map(d =>
+            `<option value="${d}" ${p.date === d ? "selected" : ""}>${fmtDate(d)}</option>`).join("")}</select>
           <div class="chips" style="margin-top:8px">${quickDates().map(([label, iso]) =>
             `<button class="chip ${p.date === iso ? "on" : ""}" data-act="pickDate" data-val="${iso}">${label}</button>`).join("")}</div></div>
         <div><label class="f">Time <span class="req">*</span></label>
@@ -539,17 +541,19 @@ const screens = {
   booked() {
     const r = state.selected, b = state.booking, c = b.confirmed;
     const bad = b.mismatches.length > 0;
+    const unverified = b.real && !b.confirmation;      // the couple said it's booked, but we have nothing to check
     return `
-      <div class="big-icon">${bad ? "⚠️" : "🎉"}</div>
-      <h1 class="center">${bad ? "Booked — but check this" : "You're booked!"}</h1>
+      <div class="big-icon">${bad ? "⚠️" : unverified ? "📝" : "🎉"}</div>
+      <h1 class="center">${bad ? "Booked — but check this" : unverified ? "Saved as booked, not verified" : "You're booked!"}</h1>
       <p class="sub center">${esc(bad ? (b.real ? "What you booked differs from what you approved. Check the highlighted rows before you go." : F2.mismatchWarning) : (b.real ? "What you told us matches what you approved." : S.booking.successMessage))}</p>
-      ${b.real && !b.confirmation ? `<div class="flag">Self-reported: we can't see your booking on ${esc(b.platform)}. Add the confirmation number from the email to keep it on record.</div>` : ""}
+      ${unverified ? `<div class="flag">Self-reported: we can't see your booking on ${esc(b.platform)}. Add the confirmation number from the email to verify it.</div>
+      <button class="btn secondary" data-act="gotIt">Add confirmation number</button><div style="height:14px"></div>` : ""}
       <div class="summary">
         <div class="line"><span class="k">${esc(c.venue)}</span><span class="v">${esc(c.date)}</span></div>
         <div class="line"><span class="k">${esc(c.time)} · party of ${c.partySize}</span><span class="v">${b.real ? esc(b.platform) : "#" + b.id}</span></div>
       </div>
       <label class="f" style="margin-top:0">Booking check</label>
-      ${termsTable(b.approved, c, "Approved", b.real ? (b.confirmation ? "Booked" : "You told us") : "Confirmed", { markBad: true })}
+      ${termsTable(b.approved, c, "Approved", b.real ? (b.confirmation ? "Booked" : "You told us") : "Confirmed", { markBad: !unverified })}
       <div style="height:14px"></div>
       ${b.real ? `
       <p class="hint" style="text-align:left">Booked by you on ${esc(b.platform)}${b.confirmation ? " · confirmation " + esc(b.confirmation) : ""}.</p>
@@ -941,10 +945,12 @@ const actions = {
     const confirmed = { ...t, time: g.time, partySize: Number(g.partySize) || t.partySize, deposit: g.deposit || t.deposit,
                         platformNote: g.platform };
     const mismatches = diffFields(t, confirmed);
-    state.booking = { id: g.confirmation || "", real: true, platform: g.platform, confirmation: g.confirmation,
+    // Saving again (e.g. to add the confirmation number) updates the same booking instead of adding one.
+    const prevId = state.booking && state.booking.real && state.booking.placeId === state.selected.id && state.booking.serverId;
+    state.booking = { id: g.confirmation || "", real: true, placeId: state.selected.id, platform: g.platform, confirmation: g.confirmation,
                       approved: t, confirmed, mismatches };
     state.showExternal = false;
-    state.metrics.booked++;
+    if (!prevId) state.metrics.booked++;
     log("real_booking_saved", { venue: state.selected.id, platform: g.platform, confirmation: g.confirmation || null,
                                 approvedTerms: t, confirmedTerms: confirmed, mismatchedFields: mismatches });
     if (mismatches.length) {
@@ -954,7 +960,8 @@ const actions = {
     try {
       const res = await api("/api/book", { session_id: state.pipeline && state.pipeline.session_id, place_id: state.selected.id,
         name: state.selected.name, kind: state.selected.kind, date: state.plan.date, time: confirmed.time,
-        party_size: confirmed.partySize, platform: g.platform, confirmation: g.confirmation || null, real: true });
+        party_size: confirmed.partySize, platform: g.platform, confirmation: g.confirmation || null, real: true,
+        booking_id: prevId || undefined });
       state.booking.serverId = res.booking_id;
       state.booking.when = `${state.plan.date}T${to24(confirmed.time)}`;
     } catch (e) { log("book_record_failed", { error: String(e) }, "alert"); }
