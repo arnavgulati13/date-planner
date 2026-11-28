@@ -18,7 +18,7 @@ import requests
 import ailog
 from places import CACHE
 
-DIR = CACHE / "booking"
+DIR = CACHE / "booking_v2"          # v2: links must name the venue (v1 could pick a sister restaurant)
 MAX_AGE = 14 * 24 * 3600            # restaurants switch platforms now and then
 HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
                          "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
@@ -34,14 +34,36 @@ OT_WIDGET = re.compile(r"opentable\.com/widget/reservation/loader\?[^\"'\s<>]*?r
 NOT_VENUE = {"search", "about", "city", "cities", "login", "signup", "explore", "api", "widget", "reservations", "tock", "join", "home"}
 
 
-def find_link(html: str) -> tuple[str, str] | None:
-    """(platform, booking page URL) from a page's HTML, or None."""
+STOP = {"the", "and", "bar", "restaurant", "chicago", "cafe", "kitchen", "grill", "lounge", "cocktail", "cocktails",
+        "west", "loop", "house", "room", "tavern", "pub", "club", "co"}
+
+
+def _compact(text: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", text.lower().replace("\u2019", "").replace("'", ""))
+
+
+def names_venue(slug: str, name: str) -> bool:
+    """Does a booking link's slug belong to this venue? Restaurant groups link their sister
+    restaurants too: Ciccio Mio's site links to Bavette's Resy page."""
+    slug = _compact(slug)
+    words = [_compact(w) for w in re.split(r"[\s&+/-]+", name.split("|")[0].split(" - ")[0].split("(")[0])]
+    words = [w for w in words if len(w) >= 3 and w not in STOP]
+    whole = _compact(name.split("|")[0].split(" - ")[0].split("(")[0])
+    return any(w in slug for w in words) or (len(whole) >= 5 and whole[:8] in slug)
+
+
+def find_link(html: str, name: str | None = None) -> tuple[str, str] | None:
+    """(platform, booking page URL) from a page's HTML, or None. With a venue name, a link whose
+    slug names a different restaurant is skipped. OpenTable restref links carry only a number,
+    so they can't be checked and are trusted."""
     html = html.replace("&amp;", "&").replace("\\/", "/")
     for platform, pat in PATTERNS:
         for m in pat.finditer(html):
             url = m.group(0)
             last = urlparse(url).path.rstrip("/").rsplit("/", 1)[-1].lower()
             if platform in ("Resy", "Tock", "SevenRooms") and last in NOT_VENUE:
+                continue
+            if name and "restref" not in url and not names_venue(last, name):
                 continue
             return platform, _clean(platform, url)
     m = OT_WIDGET.search(html)
@@ -79,18 +101,18 @@ def _reservation_page(html: str, base: str) -> str | None:
     return None
 
 
-def detect(website: str | None) -> dict:
+def detect(website: str | None, name: str | None = None) -> dict:
     """{"platform", "url"} for the venue's own booking page; platform None when none was found."""
     if not website:
         return {"platform": None, "url": None, "checked": "no website"}
-    found = find_link(website)          # the "website" is sometimes the booking page itself
+    found = find_link(website, name)    # the "website" is sometimes the booking page itself
     if found:
         return {"platform": found[0], "url": found[1], "checked": "website is the booking page"}
     try:
         html = _get(website)
-        found = find_link(html)
+        found = find_link(html, name)
         if not found and (page := _reservation_page(html, website)):
-            found = find_link(_get(page))
+            found = find_link(_get(page), name)
     except requests.RequestException as e:
         return {"platform": None, "url": None, "checked": f"website didn't load ({type(e).__name__})"}
     if found:
@@ -109,7 +131,7 @@ def lookup(venues: list[dict]) -> dict[str, dict]:
         else:
             todo.append(v)
     with ThreadPoolExecutor(max_workers=len(todo) or 1) as pool:
-        for v, info in zip(todo, pool.map(lambda v: detect(v.get("website")), todo)):
+        for v, info in zip(todo, pool.map(lambda v: detect(v.get("website"), v.get("name")), todo)):
             if "didn't load" not in info["checked"]:      # retry next time if the site was down
                 (DIR / f"{v['place_id']}.json").write_text(json.dumps(info))
             out[v["place_id"]] = info

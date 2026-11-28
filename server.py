@@ -322,7 +322,7 @@ def book():
     """Records a booking so the check-in and 'visited lately' rule work. Real bookings are made by the couple
     on OpenTable, Resy or Google (the app opens the page with the details filled in); Test-mode bookings are simulated."""
     b = request.get_json()
-    booking_id = uuid.uuid4().hex[:8]
+    booking_id = b.get("booking_id") or uuid.uuid4().hex[:8]     # same id when the couple updates a booking
     when = datetime.strptime(f"{b['date']} {b['time']}", "%Y-%m-%d %I:%M %p")
     store.log("booked", booking_id=booking_id, session_id=b.get("session_id"), place_id=b["place_id"],
               name=b["name"], when=when.isoformat(), kind=b.get("kind"), real=bool(b.get("real")),
